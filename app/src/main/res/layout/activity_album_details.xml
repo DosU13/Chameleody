@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
+    android:background="@color/colorDark"
     tools:context=".activity.AlbumDetails">
 
     <ImageView
@@ -12,14 +12,16 @@
         android:layout_height="300dp"
         android:id="@+id/album_album_photo"
         android:src="@drawable/ic_launcher_background"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/album_art" />
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:id="@+id/album_gradient"
         android:src="@drawable/gradient_bg"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/gradient" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"

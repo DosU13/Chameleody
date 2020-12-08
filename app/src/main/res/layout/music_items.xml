@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#111111"
+    android:background="@color/colorDark"
     android:layout_marginTop="5dp"
     android:id="@+id/audio_item">
 
@@ -17,14 +17,16 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="File Name"
+        android:text="@string/file_name"
         android:layout_toEndOf="@+id/music_img"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_centerVertical="true"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorWhite"
         android:layout_toStartOf="@+id/menu_more"
-        android:id="@+id/music_file_name"/>
+        android:id="@+id/music_file_name"
+        android:layout_toRightOf="@+id/music_img"
+        android:layout_toLeftOf="@+id/menu_more" />
 
     <ImageView
         android:layout_width="60dp"
@@ -32,6 +34,7 @@
         android:id="@+id/menu_more"
         android:src="@drawable/ic_baseline_more_vert_24"
         android:layout_alignParentEnd="true"
-        android:padding="10dp"/>
+        android:padding="15dp"
+        android:layout_alignParentRight="true" />
 
 </RelativeLayout>

@@ -12,27 +12,28 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorPrimary"
-        android:id="@+id/relative_layout"/>
+        android:background="@color/colorDark"
+        android:id="@+id/relative_layout">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="170dp"
         android:id="@+id/album_image"
-        android:src="@mipmap/ic_launcher"/>
+        android:src="@mipmap/ic_launcher"
+        android:contentDescription="@string/album_art" />
 
-    <TextView
-        android:layout_width="140dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/album_name"
-        android:layout_alignParentBottom="true"
-        android:text="Album"
-        android:textColor="#ffffff"
-        android:singleLine="true"
-        android:gravity="center_horizontal"
-        android:layout_centerHorizontal = "true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:textStyle="bold"/>
+        <TextView
+            android:id="@+id/album_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:gravity="center_horizontal"
+            android:singleLine="true"
+            android:text="@string/album"
+            android:textColor="@color/colorWhite"
+            android:textStyle="bold" />
+    </RelativeLayout>
 
 </androidx.cardview.widget.CardView>

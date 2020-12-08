@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:text="Now Playing"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/colorWhite"
             android:layout_toEndOf="@id/back_btn"
             android:layout_toStartOf="@+id/menu_btn"
             android:gravity="center_horizontal"
@@ -72,7 +72,7 @@
         android:text="This is song name"
         android:id="@+id/song_name"
         android:layout_below="@+id/card"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorWhite"
         android:gravity="center_horizontal"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -86,7 +86,7 @@
         android:text="This is song Artist"
         android:id="@+id/song_artist"
         android:layout_below="@+id/song_name"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/colorWhite"
         android:gravity="center_horizontal"
         android:textSize="18sp"
         android:singleLine="true"
@@ -122,7 +122,7 @@
             android:layout_toStartOf="@+id/play_pause"
             android:layout_marginStart="16dp"/>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/play_pause"
@@ -164,7 +164,7 @@
             android:layout_height="wrap_content"
             android:text="1:28"
             android:id="@+id/durationPlayed"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/colorWhite"
             android:layout_marginStart="10dp"
             android:layout_alignParentStart="true"/>
 
@@ -173,7 +173,7 @@
             android:layout_height="wrap_content"
             android:text="4:28"
             android:id="@+id/durationTotal"
-            android:textColor="@color/colorAccent"
+            android:textColor="@color/colorWhite"
             android:layout_marginEnd="10dp"
             android:layout_alignParentEnd="true"/>
 
