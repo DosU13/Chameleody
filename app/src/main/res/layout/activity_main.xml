@@ -157,60 +157,8 @@
         android:id="@+id/viewpager">
     </androidx.viewpager.widget.ViewPager>
 
-
-
-    <LinearLayout
-        android:id="@+id/player_main"
+    <FrameLayout
+        android:id="@+id/player_fr_main"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@color/colorLDark">
-        <ImageView
-            android:id="@+id/art_main"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/logo"/>
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/track_name_main"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:text="@string/track_name"
-                android:gravity="center_horizontal"
-                android:textSize="15sp"
-                android:textColor="@color/colorWhite"/>
-            <TextView
-                android:id="@+id/track_artist_main"
-                android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:text="@string/track_artist"
-                android:gravity="center_horizontal"
-                android:textSize="12sp"
-                android:textColor="@color/colorWhite"/>
-        </LinearLayout>
-        <Button
-            android:id="@+id/previous_main"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_gravity="center_vertical"
-            android:backgroundTint="@color/colorWhite"
-            android:background="@drawable/ic_baseline_skip_previous_24"/>
-        <Button
-            android:id="@+id/play_main"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center_vertical"
-            android:backgroundTint="@color/colorWhite"
-            android:background="@drawable/ic_baseline_play_arrow_24"/>
-        <Button
-            android:id="@+id/next_main"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_gravity="center_vertical"
-            android:backgroundTint="@color/colorWhite"
-            android:background="@drawable/ic_baseline_skip_next_24"/>
-    </LinearLayout>
+        android:layout_height="50dp"/>
 </LinearLayout>

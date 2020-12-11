@@ -11,4 +11,5 @@
     <string name="track_name">Track Name</string>
     <string name="track_artist">Track Artist</string>
     <string name="smart_shuffle">Smart shuffle</string>
+    <string name="art">Art</string>
 </resources>
