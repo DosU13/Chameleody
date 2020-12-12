@@ -1,9 +1,5 @@
 package com.example.chameleody.activity
 
-//import com.example.chameleody.activity.MainActivity.Companion.repeatBoolean
-//import com.example.chameleody.activity.MainActivity.Companion.shuffleBoolean
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -18,20 +14,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
-import android.support.v4.media.session.MediaSessionCompat
-import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.NotificationCompat
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
-import com.example.chameleody.ActionPlaying
-import com.example.chameleody.ApplicationClass.Companion.ACTION_NEXT
-import com.example.chameleody.ApplicationClass.Companion.ACTION_PLAY
-import com.example.chameleody.ApplicationClass.Companion.ACTION_PREVIOUS
-import com.example.chameleody.ApplicationClass.Companion.CHANNEL_ID_2
 import com.example.chameleody.MusicService
 import com.example.chameleody.R
 import com.example.chameleody.activity.MainActivity.Companion.REPEAT_ALL
@@ -44,10 +32,9 @@ import com.example.chameleody.activity.MainActivity.Companion.currentSongs
 import com.example.chameleody.adapter.AlbumDetailsAdapter.Companion.albumFiles
 import com.example.chameleody.adapter.MusicAdapter.Companion.mFiles
 import kotlinx.android.synthetic.main.activity_player.*
-import kotlin.random.Random
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection{
-    private var position = -1
+    //private var position = -1
     private lateinit var songName : TextView
     private lateinit var artistName : TextView
     private lateinit var durationPlayed : TextView
@@ -60,20 +47,15 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
     private lateinit var repeatBtn : ImageView
     private lateinit var playPauseBtn : Button
     private lateinit var seekBar : SeekBar
-    private lateinit var playThread : Thread
-    private lateinit var prevThread : Thread
-    private lateinit var nextThread: Thread
     private lateinit var musicService: MusicService
     companion object {
         lateinit var uri : Uri
     }
     private lateinit var handler : Handler
-    lateinit var mediaSessionCompat: MediaSessionCompat
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
-        mediaSessionCompat = MediaSessionCompat(baseContext, "My Audio")
         initViews()
         getIntentMethod()
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
@@ -85,14 +67,8 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
                 seekBar.progress = mCurrentPosition
                 durationPlayed.text = formattedTime(mCurrentPosition)
             }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-
-            }
+            override fun onStartTrackingTouch(p0: SeekBar?) {}
+            override fun onStopTrackingTouch(p0: SeekBar?) {}
         })
 
         handler = Handler(Looper.getMainLooper())
@@ -125,9 +101,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
     override fun onResume() {
         val intent = Intent(this, MusicService::class.java)
         bindService(intent, this, Context.BIND_AUTO_CREATE)
-        playThreadBtn()
-        prevThreadBtn()
-        nextThreadBtn()
+        playPauseBtn.setOnClickListener {playPauseBtnClicked()}
+        prevBtn.setOnClickListener { prevBtnClicked() }
+        nextBtn.setOnClickListener{ nextBtnClicked()}
         super.onResume()
     }
 
@@ -136,173 +112,50 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
         unbindService(this)
     }
 
-    private fun nextThreadBtn() {
-        nextThread = Thread(Runnable {
-            nextBtn.setOnClickListener(View.OnClickListener {
-                nextBtnClicked()
-            })
-        })
-        nextThread.start()
+    private fun nextBtnClicked() {
+        musicService.nextBtnClicked()
+        uri = Uri.parse(currentSongs[currentSongPos].path)
+        metaData(uri)
+        songName.text = currentSongs[currentSongPos].title
+        artistName.text = currentSongs[currentSongPos].artist
+        initSeekThread()
+        musicService.showNotification(R.drawable.ic_baseline_pause_24)
+        playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
     }
 
-    override fun nextBtnClicked() {
-        if (musicService.isPLaying()){
-            musicService.stop()
-            musicService.release()
-
-            when(currentShuffle) {
-                REPEAT_ALL -> position = ((position + 1) % currentSongs.size)
-                SHUFFLE_ALL -> position = Random.nextInt(0,currentSongs.size)
-                SHUFFLE_SMART -> TODO()
-            }
-            uri = Uri.parse(currentSongs[position].path)
-            musicService.createMediaPlayer(position)
-            metaData(uri)
-            songName.text = currentSongs[position].title
-            artistName.text = currentSongs[position].artist
-            seekBar.max = musicService.duration / 1000
-            this@PlayerActivity.runOnUiThread(runnable {
-                if (::musicService.isInitialized){
-                    val mCurrentPosition = musicService.currentPosition/1000
-                    seekBar.progress = mCurrentPosition
-                }
-                handler.postDelayed(this, 1000)
-            })
-            musicService.onCompleted()
-            showNotification(R.drawable.ic_baseline_pause_24)
-            playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
-            musicService.start()
-        }
-        else{
-            musicService.stop()
-            musicService.release()
-            position = ((position + 1) % currentSongs.size)
-            uri = Uri.parse(currentSongs[position].path)
-            musicService.createMediaPlayer(position)
-            metaData(uri)
-            songName.text = currentSongs[position].title
-            artistName.text = currentSongs[position].artist
-            seekBar.max = musicService.duration / 1000
-            this@PlayerActivity.runOnUiThread(runnable {
-                if (::musicService.isInitialized){
-                    val mCurrentPosition = musicService.currentPosition/1000
-                    seekBar.progress = mCurrentPosition
-                }
-                handler.postDelayed(this, 1000)
-            })
-            musicService.onCompleted()
-            showNotification(R.drawable.ic_baseline_play_arrow_24)
-            playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24)
-        }
+    private fun prevBtnClicked() {
+        musicService.prevBtnClicked()
+        uri = Uri.parse(currentSongs[currentSongPos].path)
+        metaData(uri)
+        songName.text = currentSongs[currentSongPos].title
+        artistName.text = currentSongs[currentSongPos].artist
+        initSeekThread()
+        musicService.showNotification(R.drawable.ic_baseline_pause_24)
+        playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
     }
 
-    private fun prevThreadBtn() {
-        prevThread = Thread(Runnable {
-            prevBtn.setOnClickListener(View.OnClickListener {
-                prevBtnClicked()
-            })
-        })
-        prevThread.start()
-    }
-
-    override fun prevBtnClicked() {
-        if (musicService.isPLaying()){
-            musicService.stop()
-            musicService.release()
-
-            when (currentShuffle) {
-                REPEAT_ALL -> {
-                    if (position - 1 < 0) position = currentSongs.size - 1
-                    else position--
-                }
-                SHUFFLE_ALL -> position = Random.nextInt(0,currentSongs.size)
-                SHUFFLE_SMART -> TODO()
-            }
-            uri = Uri.parse(currentSongs[position].path)
-            musicService.createMediaPlayer(position)
-            metaData(uri)
-            songName.text = currentSongs[position].title
-            artistName.text = currentSongs[position].artist
-            seekBar.max = musicService.duration / 1000
-            this@PlayerActivity.runOnUiThread(runnable {
-                if (::musicService.isInitialized){
-                    val mCurrentPosition = musicService.currentPosition/1000
-                    seekBar.progress = mCurrentPosition
-                }
-                handler.postDelayed(this, 1000)
-            })
-            musicService.onCompleted()
-            showNotification(R.drawable.ic_baseline_pause_24)
-            playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
-            musicService.start()
-        }
-        else{
-            musicService.stop()
-            musicService.release()
-
-            when (currentShuffle) {
-                REPEAT_ALL -> {
-                    if (position - 1 < 0) position = currentSongs.size - 1
-                    else position--
-                }
-                SHUFFLE_ALL -> position = Random.nextInt(0,currentSongs.size)
-                SHUFFLE_SMART -> TODO()
-            }
-            uri = Uri.parse(currentSongs[position].path)
-            musicService.createMediaPlayer(position)
-            metaData(uri)
-            songName.text = currentSongs[position].title
-            artistName.text = currentSongs[position].artist
-            seekBar.max = musicService.duration / 1000
-            this@PlayerActivity.runOnUiThread(runnable {
-                if (::musicService.isInitialized){
-                    val mCurrentPosition = musicService.currentPosition/1000
-                    seekBar.progress = mCurrentPosition
-                }
-                handler.postDelayed(this, 1000)
-            })
-            musicService.onCompleted()
-            showNotification(R.drawable.ic_baseline_play_arrow_24)
-            playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24)
-        }
-    }
-
-    private fun playThreadBtn() {
-        playThread = Thread(Runnable {
-            playPauseBtn.setOnClickListener(View.OnClickListener {
-                playPauseBtnClicked()
-            })
-        })
-        playThread.start()
-    }
-
-    override fun playPauseBtnClicked() {
+    private fun playPauseBtnClicked() {
         if (musicService.isPlaying){
-            showNotification(R.drawable.ic_baseline_play_arrow_24)
+            musicService.showNotification(R.drawable.ic_baseline_play_arrow_24)
             playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24)
-            musicService.pause()
-            seekBar.max = musicService.duration / 1000
-            this@PlayerActivity.runOnUiThread(runnable {
-                if (::musicService.isInitialized){
-                    val mCurrentPosition = musicService.currentPosition/1000
-                    seekBar.progress = mCurrentPosition
-                }
-                handler.postDelayed(this, 1000)
-            })
         }
         else{
             playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
-            showNotification(R.drawable.ic_baseline_pause_24)
-            musicService.start()
-            seekBar.max = musicService.duration / 1000
-            this@PlayerActivity.runOnUiThread(runnable {
-                if (::musicService.isInitialized){
-                    val mCurrentPosition = musicService.currentPosition/1000
-                    seekBar.progress = mCurrentPosition
-                }
-                handler.postDelayed(this, 1000)
-            })
+            musicService.showNotification(R.drawable.ic_baseline_pause_24)
         }
+        musicService.playPauseBtnClicked()
+        initSeekThread()
+    }
+
+    private fun initSeekThread(){
+        seekBar.max = musicService.duration / 1000
+        this@PlayerActivity.runOnUiThread(runnable {
+            if (::musicService.isInitialized){
+                val mCurrentPosition = musicService.currentPosition/1000
+                seekBar.progress = mCurrentPosition
+            }
+            handler.postDelayed(this, 1000)
+        })
     }
 
     private fun formattedTime(mCurrentPosition: Int): String {
@@ -318,49 +171,33 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
     }
 
     private fun getIntentMethod() {
-        position = intent.getIntExtra("position", -1)
+        currentSongPos = intent.getIntExtra("position", -1)
         val sender = intent.getStringExtra("sender")
         currentSongs = if (sender != null && sender == "albumDetails") albumFiles //currentSongs must be already changed to album files from albumAdapter
                     else mFiles
-        showNotification(R.drawable.ic_baseline_pause_24)
         playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
-        uri = Uri.parse(currentSongs[position].path)
-        //val intent = Intent(this, MusicService::class.java)
-        //intent.putExtra("servicePosition", position)
-        //startService(intent)
-//        if (::musicService.isInitialized){
-//            musicService.stop()
-//            musicService.reset()
-//            musicService.release()
-//            musicService.createMediaPlayer(position)
-//            musicService.start()
-//        }
-//        else{
-//            musicService.createMediaPlayer(position)
-//            musicService.start()
-//            ::musicService.isInitialized = true
-//        }
+        uri = Uri.parse(currentSongs[currentSongPos].path)
     }
 
     private fun initViews() {
-        songName = findViewById<TextView>(R.id.song_name)
-        artistName = findViewById<TextView>(R.id.song_artist)
-        durationPlayed = findViewById<TextView>(R.id.durationPlayed)
-        durationTotal = findViewById<TextView>(R.id.durationTotal)
-        coverArt =findViewById<ImageView>(R.id.cover_art)
-        nextBtn = findViewById<ImageView>(R.id.id_next)
-        prevBtn = findViewById<ImageView>(R.id.id_prev)
-        backBtn = findViewById<ImageView>(R.id.back_btn)
-        shuffleBtn = findViewById<ImageView>(R.id.id_shuffle)
-        repeatBtn = findViewById<ImageView>(R.id.id_repeat)
-        playPauseBtn = findViewById<Button>(R.id.play_pause)
-        seekBar = findViewById<SeekBar>(R.id.seekbar)
+        songName = findViewById(R.id.song_name)
+        artistName = findViewById(R.id.song_artist)
+        durationPlayed = findViewById(R.id.durationPlayed)
+        durationTotal = findViewById(R.id.durationTotal)
+        coverArt =findViewById(R.id.cover_art)
+        nextBtn = findViewById(R.id.id_next)
+        prevBtn = findViewById(R.id.id_prev)
+        backBtn = findViewById(R.id.back_btn)
+        shuffleBtn = findViewById(R.id.id_shuffle)
+        repeatBtn = findViewById(R.id.id_repeat)
+        playPauseBtn = findViewById(R.id.play_pause)
+        seekBar = findViewById(R.id.seekbar)
     }
 
     private fun metaData(uri: Uri){
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(uri.toString())
-        val durationTotalInt = Integer.parseInt(currentSongs[position].duration) / 1000
+        val durationTotalInt = Integer.parseInt(currentSongs[currentSongPos].duration) / 1000
         durationTotal.text = formattedTime(durationTotalInt)
         val art : ByteArray? = retriever.embeddedPicture
         val bitmap : Bitmap?
@@ -469,49 +306,13 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
         musicService.playMedia(currentSongPos)
         seekBar.max = musicService.duration / 1000
         metaData(uri)
-        songName.text = currentSongs[position].title
-        song_artist.text = currentSongs[position].artist
+        songName.text = currentSongs[currentSongPos].title
+        song_artist.text = currentSongs[currentSongPos].artist
         musicService.onCompleted()
+        musicService.showNotification(R.drawable.ic_baseline_pause_24)
     }
 
     override fun onServiceDisconnected(p0: ComponentName?) {
         //musicService = null
-    }
-
-    private fun showNotification(playPauseBtn : Int){
-        val intent = Intent(this, PlayerActivity::class.java)
-        val contentIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
-        val prevIntent = Intent(this, PlayerActivity::class.java).setAction(ACTION_PREVIOUS)
-        val prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val pauseIntent = Intent(this, PlayerActivity::class.java).setAction(ACTION_PLAY)
-        val pausePending = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val nextIntent = Intent(this, PlayerActivity::class.java).setAction(ACTION_NEXT)
-        val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val picture = getAlbumArt(currentSongs[position].path)
-        val thumb = if (picture!=null){
-            BitmapFactory.decodeByteArray(picture, 0, picture.size) }
-        else{
-            BitmapFactory.decodeResource(resources, R.drawable.default_art)
-        }
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID_2).
-                setSmallIcon(playPauseBtn).setLargeIcon(thumb).
-                setContentTitle(currentSongs[position].title).setContentText(currentSongs[position].artist).
-                addAction(R.drawable.ic_baseline_skip_previous_24, "Previous", prevPending).
-                addAction(playPauseBtn, "Pause", pausePending).
-                addAction(R.drawable.ic_baseline_skip_next_24, "Next", nextPending).
-                setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediaSessionCompat.sessionToken)).
-                setPriority(NotificationCompat.PRIORITY_HIGH).
-                setOnlyAlertOnce(true).
-                build()
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(0, notification)
-    }
-
-    private fun getAlbumArt(uri: String): ByteArray? {
-        val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(uri)
-        val art = retriever.embeddedPicture
-        retriever.release()
-        return art
     }
 }
