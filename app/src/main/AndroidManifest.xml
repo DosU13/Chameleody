@@ -27,5 +27,12 @@
         </activity>
 
         <service android:name="com.example.chameleody.MusicService" android:enabled="true"/>
+        <receiver android:name=".NotificationReceiver" android:enabled="true">
+            <intent-filter>
+                <action android:name="actionPrevious"/>
+                <action android:name="actionPlay"/>
+                <action android:name="actionNext"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>
