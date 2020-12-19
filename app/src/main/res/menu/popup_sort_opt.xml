@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="Name"
+        android:id="@+id/by_name"
+        app:showAsAction="never"/>
+    <item
+        android:title="Date"
+        android:id="@+id/by_date"
+        app:showAsAction="never"/>
+    <item
+        android:title="Size"
+        android:id="@+id/by_size"
+        app:showAsAction="never"/>
+</menu>

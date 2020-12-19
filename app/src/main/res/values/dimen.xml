@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text">100dp</dimen> <!-- parameters layouts length on fragment_general_info-->
+</resources>

@@ -5,10 +5,14 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.Menu
 import android.view.MenuItem
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.SearchView.*
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -21,14 +25,15 @@ import com.example.chameleody.fragment.AlbumFragment
 import com.example.chameleody.fragment.PlayerFragment
 import com.example.chameleody.fragment.SongsFragment
 import com.example.chameleody.model.MusicFiles
+import kotlinx.android.synthetic.main.activity_main.*
+import java.util.*
+import kotlin.collections.ArrayList
 
-class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener{
+class MainActivity : AppCompatActivity(){
     companion object{
         var currentSongs = ArrayList<MusicFiles>()
         var currentSongPos = 0;
         var musicFiles = ArrayList<MusicFiles>()
-//        var shuffleBoolean = false
-//        var repeatBoolean = false
         var currentShuffle = 2
         var albums = ArrayList<MusicFiles>()
         const val REQUEST_CODE = 1
@@ -79,9 +84,66 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener{
 
     private fun initAll(){
         getAllAudio(this)
+        initViews()
         initViewPager()
         initPlayerFr()
         initService()
+    }
+
+    private fun initViews(){
+        val optionsBtn : Button = findViewById(R.id.options_main)
+        val searchBar : SearchView = findViewById(R.id.search_bar_main)
+        val recentBtn : Button = findViewById(R.id.recent)
+        val favoriteBtn : Button = findViewById(R.id.favorite)
+        val playlistBtn : Button = findViewById(R.id.play_list)
+        val shuffleBtn : Button = findViewById(R.id.shuffle_all_main)
+        val smartShuffle : LinearLayout = findViewById(R.id.adv_shuffle_all_main)
+        val sortOptions : Button = findViewById(R.id.sort_options_main)
+        val showOptions : Button = findViewById(R.id.show_by_main)
+
+        searchBar.setOnQueryTextListener(object: OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val userInput = newText?.toLowerCase(Locale.ROOT)
+                val myFiles = ArrayList<MusicFiles>()
+                for (song : MusicFiles in musicFiles) {
+                    if (song.title.toLowerCase(Locale.ROOT).contains(userInput.toString()) ||
+                        song.artist.toLowerCase(Locale.ROOT).contains(userInput.toString()) ||
+                        song.album.toLowerCase(Locale.ROOT).contains(userInput.toString())){
+                        myFiles.add(song)
+                    }
+                }
+                SongsFragment.songsAdapter.updateList(myFiles)
+                return true
+            }
+
+        })
+        sortOptions.setOnClickListener{v->
+            val popupMenu = PopupMenu(this, v)
+            popupMenu.menuInflater.inflate(R.menu.popup_sort_opt, popupMenu.menu)
+            popupMenu.show()
+            popupMenu.setOnMenuItemClickListener(object : MenuItem.OnMenuItemClickListener,
+                PopupMenu.OnMenuItemClickListener {
+                override fun onMenuItemClick(item: MenuItem?): Boolean {
+                    val editor = getSharedPreferences(MY_SORT_PREF, Context.MODE_PRIVATE).edit()
+                    when (item?.itemId){
+                        R.id.by_name -> {
+                            editor.putString("sorting", "sortByName")
+                            editor.apply()}
+                        R.id.by_date -> {
+                            editor.putString("sorting", "sortByDate")
+                            editor.apply()}
+                        R.id.by_size -> {
+                            editor.putString("sorting", "sortBySize")
+                            editor.apply()}
+                    }
+                    return true
+                }
+            })
+        }
     }
 
     private fun initService(){
@@ -172,50 +234,5 @@ class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener{
         }
         musicFiles = tempAudioList
         return tempAudioList
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.search, menu)
-        val menuItem = menu?.findItem(R.id.search_option)
-        val searchView : SearchView = menuItem?.actionView as SearchView
-        searchView.setOnQueryTextListener(this)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onQueryTextSubmit(query: String?): Boolean {
-        return true
-    }
-
-    override fun onQueryTextChange(newText: String?): Boolean {
-        val userInput = newText?.toLowerCase()
-        val myFiles = ArrayList<MusicFiles>()
-        for (song : MusicFiles in musicFiles){
-            if (song.title.toLowerCase().contains(userInput.toString()) ||
-                song.artist.toLowerCase().contains(userInput.toString()) ||
-                song.album.toLowerCase().contains(userInput.toString())){
-                myFiles.add(song)
-            }
-        }
-        SongsFragment.musicAdapter.updateList(myFiles)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val editor = getSharedPreferences(Companion.MY_SORT_PREF, Context.MODE_PRIVATE).edit()
-        when (item.itemId){
-            R.id.by_name -> {
-                editor.putString("sorting", "sortByName")
-                editor.apply()
-                this.recreate()}
-            R.id.by_date -> {
-                editor.putString("sorting", "sortByDate")
-                editor.apply()
-                this.recreate()}
-            R.id.by_size -> {
-                editor.putString("sorting", "sortBySize")
-                editor.apply()
-                this.recreate()}
-        }
-        return super.onOptionsItemSelected(item)
     }
 }

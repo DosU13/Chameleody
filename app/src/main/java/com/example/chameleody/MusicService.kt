@@ -27,7 +27,7 @@ import kotlin.random.Random
 class MusicService : Service(), MediaPlayer.OnCompletionListener {
     private var mBinder: IBinder = MyBinder()
     lateinit var mediaPlayer: MediaPlayer
-    lateinit var mediaSessionCompat: MediaSessionCompat
+    private lateinit var mediaSessionCompat: MediaSessionCompat
     val duration get() = mediaPlayer.duration
     val currentPosition get() = mediaPlayer.currentPosition
     val isPlaying get() = mediaPlayer.isPlaying
@@ -155,9 +155,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
         val notification = NotificationCompat.Builder(this, ApplicationClass.CHANNEL_ID_2).
         setSmallIcon(playPauseBtn).setLargeIcon(thumb).
         setContentTitle(currentSongs[currentSongPos].title).setContentText(currentSongs[currentSongPos].artist).
-        addAction(R.drawable.ic_baseline_skip_previous_24, "Previous", prevPending).
+        addAction(R.drawable.prev, "Previous", prevPending).
         addAction(playPauseBtn, "Pause", pausePending).
-        addAction(R.drawable.ic_baseline_skip_next_24, "Next", nextPending).
+        addAction(R.drawable.next, "Next", nextPending).
         setStyle(androidx.media.app.NotificationCompat.MediaStyle().setMediaSession(mediaSessionCompat.sessionToken)).
         setPriority(NotificationCompat.PRIORITY_HIGH).
         setOnlyAlertOnce(true).

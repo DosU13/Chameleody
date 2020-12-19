@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="version">
+        <item>Original</item>
+        <item>Remix</item>
+        <item>Cover</item>
+        <item>Instrumental</item>
+        <item>Short version</item>
+        <item>Long version</item>
+    </string-array>
+    <string-array name="age">
+        <item>not explored</item>
+        <item>new</item>
+        <item>common</item>
+        <item>old</item>
+        <item>nostalgic</item>
+    </string-array>
+    <string-array name="genre">
+        <item>House</item>
+        <item>Big Room</item>
+        <item>Electro</item>
+        <item>Trance</item>
+        <item>Dubstep</item>
+        <item>DnB</item>
+        <item>Trap</item>
+        <item>Future Bass</item>
+        <item>Hardstyle</item>
+        <item>Techno</item>
+    </string-array>
+</resources>

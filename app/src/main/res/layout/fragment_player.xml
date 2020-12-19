@@ -2,35 +2,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="80dp"
     android:background="@color/colorDark"
     tools:context=".fragment.PlayerFragment"
     android:id="@+id/player_fr">
 
     <ImageView
         android:id="@+id/art_player_fr"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:src="@drawable/default_art"
         android:contentDescription="@string/art" />
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="50dp"
+        android:layout_height="80dp"
         android:layout_weight="1"
         android:orientation="vertical">
         <TextView
             android:id="@+id/track_name_player_fr"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:text="@string/track_name"
+            android:layout_height="50dp"
+            android:text="@string/song_name"
             android:gravity="center_horizontal"
             android:textSize="15sp"
             android:textColor="@color/colorWhite"/>
         <TextView
             android:id="@+id/track_artist_player_fr"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:text="@string/track_artist"
+            android:layout_height="30dp"
+            android:text="@string/artist"
             android:gravity="center_horizontal"
             android:textSize="12sp"
             android:textColor="@color/colorWhite"/>
@@ -41,7 +41,7 @@
         android:layout_height="35dp"
         android:layout_gravity="center_vertical"
         android:backgroundTint="@color/colorWhite"
-        android:background="@drawable/ic_baseline_skip_previous_24"/>
+        android:background="@drawable/prev"/>
     <Button
         android:id="@+id/play_player_fr"
         android:layout_width="40dp"
@@ -55,6 +55,6 @@
         android:layout_height="35dp"
         android:layout_gravity="center_vertical"
         android:backgroundTint="@color/colorWhite"
-        android:background="@drawable/ic_baseline_skip_next_24"/>
+        android:background="@drawable/next"/>
 
 </LinearLayout>

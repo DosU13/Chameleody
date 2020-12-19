@@ -17,11 +17,12 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:background="@drawable/ic_baseline_menu_24"/>
-        <Button
+        <androidx.appcompat.widget.SearchView
             android:id="@+id/search_bar_main"
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
+            android:layout_marginTop="5dp"
             android:background="@drawable/rounded_corner"/>
     </LinearLayout>
 
@@ -38,10 +39,11 @@
                 android:layout_weight="1"/>
             <Button
                 android:id="@+id/recent"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:backgroundTint="@color/colorWhite"
-                android:background="@drawable/ic_baseline_access_time_24">
+                android:background="@drawable/ic_baseline_access_time_24"
+                android:layout_marginTop="7dp">
             </Button>
             <Space
                 android:layout_width="0dp"
@@ -49,20 +51,22 @@
                 android:layout_weight="1"/>
             <Button
                 android:id="@+id/favorite"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:backgroundTint="@color/colorWhite"
-                android:background="@drawable/ic_baseline_favorite_24"/>
+                android:background="@drawable/ic_baseline_favorite_24"
+                android:layout_marginTop="7dp"/>
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"/>
             <Button
                 android:id="@+id/play_list"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:backgroundTint="@color/colorWhite"
-                android:background="@drawable/ic_baseline_playlist_play_24"/>
+                android:background="@drawable/ic_baseline_playlist_play_24"
+                android:layout_marginTop="7dp"/>
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -79,7 +83,8 @@
             <TextView
                 android:text="@string/recent"
                 android:textColor="@color/colorWhite"
-                android:gravity="center_horizontal" />
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="7dp"/>
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -87,7 +92,8 @@
             <TextView
                 android:text="@string/favorites"
                 android:textColor="@color/colorWhite"
-                android:gravity="center_horizontal"/>
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="7dp"/>
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -95,7 +101,8 @@
             <TextView
                 android:text="@string/playlists"
                 android:textColor="@color/colorWhite"
-                android:gravity="center_horizontal"/>
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="7dp"/>
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
@@ -112,7 +119,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:backgroundTint="@color/colorWhite"
-            android:background="@drawable/ic_baseline_shuffle_24"/>
+            android:background="@drawable/shuffle_smart"/>
         <LinearLayout
             android:id="@+id/adv_shuffle_all_main"
             android:layout_width="wrap_content"
@@ -123,7 +130,7 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:backgroundTint="@color/colorSpecial"
-                android:background="@drawable/ic_baseline_shuffle_24"/>
+                android:background="@drawable/shuffle_smart"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -160,5 +167,5 @@
     <FrameLayout
         android:id="@+id/player_fr_main"
         android:layout_width="match_parent"
-        android:layout_height="50dp"/>
+        android:layout_height="80dp"/>
 </LinearLayout>

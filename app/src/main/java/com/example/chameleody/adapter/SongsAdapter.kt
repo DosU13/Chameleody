@@ -23,8 +23,8 @@ import com.example.chameleody.model.MusicFiles
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 
-class MusicAdapter(private val mContext: Context?, private val mFilesVal: ArrayList<MusicFiles>) :
-    RecyclerView.Adapter<MusicAdapter.MyViewHolder>(){
+class SongsAdapter(private val mContext: Context?, private val mFilesVal: ArrayList<MusicFiles>) :
+    RecyclerView.Adapter<SongsAdapter.MyViewHolder>(){
     companion object{
         lateinit var mFiles : ArrayList<MusicFiles>
     }
@@ -58,7 +58,7 @@ class MusicAdapter(private val mContext: Context?, private val mFilesVal: ArrayL
         }
         holder.menuMore.setOnClickListener { v ->
             val popupMenu = PopupMenu(mContext, v)
-            popupMenu.menuInflater.inflate(R.menu.popup, popupMenu.menu)
+            popupMenu.menuInflater.inflate(R.menu.popup_track_opt, popupMenu.menu)
             popupMenu.show()
             popupMenu.setOnMenuItemClickListener(object : MenuItem.OnMenuItemClickListener,
                 PopupMenu.OnMenuItemClickListener {
@@ -109,8 +109,8 @@ class MusicAdapter(private val mContext: Context?, private val mFilesVal: ArrayL
     }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val fileName = itemView.findViewById<TextView>(R.id.music_file_name)
-        val albumArt = itemView.findViewById<ImageView>(R.id.music_img)
-        val menuMore = itemView.findViewById<ImageView>(R.id.menu_more)
+        val fileName: TextView = itemView.findViewById(R.id.music_file_name)
+        val albumArt: ImageView = itemView.findViewById(R.id.music_img)
+        val menuMore: ImageView = itemView.findViewById(R.id.menu_more)
     }
 }

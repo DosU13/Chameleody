@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "311653647203",
+    "project_id": "chameleody",
+    "storage_bucket": "chameleody.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311653647203:android:65c7b4419a194d474f0956",
+        "android_client_info": {
+          "package_name": "com.example.chameleody"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "311653647203-tbokemhedp93drvla2akl2ih5hbtoj3g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chameleody",
+            "certificate_hash": "2643b44f991a588cab0a7332028a3b0998a6e25b"
+          }
+        },
+        {
+          "client_id": "311653647203-n21u849lp9iciobhc8dd2o379te5rr5a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLfQss1wQV6FgJ10dinSKWbzDTs_12q08"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "311653647203-n21u849lp9iciobhc8dd2o379te5rr5a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
