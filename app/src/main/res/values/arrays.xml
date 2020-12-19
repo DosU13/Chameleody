@@ -7,6 +7,7 @@
         <item>Instrumental</item>
         <item>Short version</item>
         <item>Long version</item>
+        <item>Other</item>
     </string-array>
     <string-array name="age">
         <item>not explored</item>
@@ -26,5 +27,6 @@
         <item>Future Bass</item>
         <item>Hardstyle</item>
         <item>Techno</item>
+        <item>Other</item>
     </string-array>
 </resources>

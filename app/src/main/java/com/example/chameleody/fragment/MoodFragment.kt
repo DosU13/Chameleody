@@ -9,12 +9,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TableLayout
-import android.widget.TableRow
-import android.widget.TextView
+import android.widget.*
 import com.example.chameleody.R
-import org.w3c.dom.Text
 
 class MoodFragment : Fragment() {
     private val moods: Array<Array<String>> = arrayOf(
@@ -22,14 +18,16 @@ class MoodFragment : Fragment() {
         arrayOf("tender\n", "roman\ntic", "empo\nwering", "stir\nring", "rowdy\n"),
         arrayOf("senti\nmental", "sophis\nticated", "sensual\n", "fiery\n", "energi\nzing"),
         arrayOf("melan\ncholy", "cool\n", "year\nning", "urgent\n", "defiant\n"),
-        arrayOf("somber\n", "gritty\n", "ser\nious", "broo\nding", "aggre\nssive")
+        arrayOf("somber\n", "gritty\n", "ser\nious", "broo\nding", "aggre\nssive"),
+        arrayOf("not set\n")
     )
     private val colors: Array<Array<String>> = arrayOf(
         arrayOf("#84ff84", "#c6ff42", "#ffff00", "#ffc600", "#ff8400", ),
         arrayOf("#42ffc6", "#a1ffa1", "#ffff84", "#ffa142", "#ff4200", ),
         arrayOf("#00ffff", "#84ffff", "#ffffff", "#ff8484", "#ff0000", ),
         arrayOf("#42c6ff", "#a1a1ff", "#ff84ff", "#ff42a1", "#ff0042", ),
-        arrayOf("#8484ff", "#c642ff", "#ff00ff", "#ff00c6", "#ff0084", )
+        arrayOf("#8484ff", "#c642ff", "#ff00ff", "#ff00c6", "#ff0084", ),
+        arrayOf("#ffffff")
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,9 +41,11 @@ class MoodFragment : Fragment() {
     }
 
     private lateinit var texts: Array<Array<TextView>>
+    private lateinit var noTxt: TextView
     private fun createTable(layout: LinearLayout){
         val table : TableLayout = layout.getChildAt(1) as TableLayout
         texts = Array(5) { row -> Array(5) { col -> createEntry(row, col) } }
+        noTxt = createEntry(5,0)
         for (rowTexts in texts){
             val row = TableRow(activity)
             for (colText in rowTexts){
@@ -53,6 +53,13 @@ class MoodFragment : Fragment() {
             }
             table.addView(row)
         }
+        val row = TableRow(activity)
+        row.addView(Space(activity))
+        row.addView(Space(activity))
+        row.addView(noTxt)
+        row.addView(Space(activity))
+        row.addView(Space(activity))
+        table.addView(row)
     }
 
     var slc: Int = 0
@@ -72,20 +79,16 @@ class MoodFragment : Fragment() {
             tv.backgroundTintList = ColorStateList.valueOf(setDefaultColor(row, col))
         }
         tv.setOnClickListener {
-            if (slc != 0){
-                val r = (slc-1)/5
-                val c = (slc-1)%5
-                val selectedTV = texts[r][c]
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    selectedTV.backgroundTintList = ColorStateList.valueOf(setDefaultColor(r, c))
-                }
-                selectedTV.setTypeface(null, Typeface.NORMAL)
-            }
+            val r = if(slc==0) 5 else (slc-1)/5
+            val c = if(slc==0) 0 else (slc-1)%5
+            val selectedTV = if(slc==0) noTxt else texts[r][c]
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                selectedTV.backgroundTintList = ColorStateList.valueOf(setDefaultColor(r, c))
                 tv.backgroundTintList = ColorStateList.valueOf(Color.parseColor(colors[row][col]))
             }
+            selectedTV.setTypeface(null, Typeface.NORMAL)
             tv.setTypeface(null, Typeface.BOLD)
-            slc = row*5+col+1
+            slc = if (row==5) 0 else row*5+col+1
         }
         return tv
     }
