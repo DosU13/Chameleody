@@ -3,13 +3,14 @@ package com.example.chameleody.activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.AsyncTask
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.SearchView.*
@@ -19,13 +20,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.example.chameleody.DatabaseClient
 import com.example.chameleody.MusicService
 import com.example.chameleody.R
 import com.example.chameleody.fragment.AlbumFragment
 import com.example.chameleody.fragment.PlayerFragment
 import com.example.chameleody.fragment.SongsFragment
 import com.example.chameleody.model.MusicFiles
-import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -83,7 +84,7 @@ class MainActivity : AppCompatActivity(){
     }
 
     private fun initAll(){
-        getAllAudio(this)
+        getAllAudio()
         initViews()
         initViewPager()
         initPlayerFr()
@@ -91,15 +92,15 @@ class MainActivity : AppCompatActivity(){
     }
 
     private fun initViews(){
-        val optionsBtn : Button = findViewById(R.id.options_main)
+//        val optionsBtn : Button = findViewById(R.id.options_main)
         val searchBar : SearchView = findViewById(R.id.search_bar_main)
-        val recentBtn : Button = findViewById(R.id.recent)
-        val favoriteBtn : Button = findViewById(R.id.favorite)
-        val playlistBtn : Button = findViewById(R.id.play_list)
-        val shuffleBtn : Button = findViewById(R.id.shuffle_all_main)
-        val smartShuffle : LinearLayout = findViewById(R.id.adv_shuffle_all_main)
+//        val recentBtn : Button = findViewById(R.id.recent)
+//        val favoriteBtn : Button = findViewById(R.id.favorite)
+//        val playlistBtn : Button = findViewById(R.id.play_list)
+//        val shuffleBtn : Button = findViewById(R.id.shuffle_all_main)
+//        val smartShuffle : LinearLayout = findViewById(R.id.adv_shuffle_all_main)
         val sortOptions : Button = findViewById(R.id.sort_options_main)
-        val showOptions : Button = findViewById(R.id.show_by_main)
+//        val showOptions : Button = findViewById(R.id.show_by_main)
 
         searchBar.setOnQueryTextListener(object: OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -110,7 +111,7 @@ class MainActivity : AppCompatActivity(){
                 val userInput = newText?.toLowerCase(Locale.ROOT)
                 val myFiles = ArrayList<MusicFiles>()
                 for (song : MusicFiles in musicFiles) {
-                    if (song.title.toLowerCase(Locale.ROOT).contains(userInput.toString()) ||
+                    if (song.name.toLowerCase(Locale.ROOT).contains(userInput.toString()) ||
                         song.artist.toLowerCase(Locale.ROOT).contains(userInput.toString()) ||
                         song.album.toLowerCase(Locale.ROOT).contains(userInput.toString())){
                         myFiles.add(song)
@@ -192,7 +193,31 @@ class MainActivity : AppCompatActivity(){
         }
     }
 
-    private fun getAllAudio(context : Context) : ArrayList<MusicFiles> {
+    private fun getAllAudio() {
+        getAllFromSP()
+        getAllFromDB()
+    }
+
+    private fun getAllFromDB(){
+        class GetMusics : AsyncTask<Void, Void, List<MusicFiles>>() {
+            override fun doInBackground(vararg p0: Void?): List<MusicFiles> {
+                return DatabaseClient.getInstance(applicationContext)
+                    .getAppDatabase().musicFilesDao().getAll()
+            }
+
+            override fun onPostExecute(result: List<MusicFiles>?) {
+                super.onPostExecute(result)
+                if (result != null) {
+                    mergeAll(result)
+                }
+            }
+        }
+
+        val getMusics = GetMusics()
+        getMusics.execute()
+    }
+
+    private fun getAllFromSP(){
         val preferences = getSharedPreferences(Companion.MY_SORT_PREF, Context.MODE_PRIVATE)
         val sortOrder = preferences.getString("sorting", "sortByDate")
         val duplicate = ArrayList<String>()
@@ -211,9 +236,10 @@ class MainActivity : AppCompatActivity(){
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.ARTIST,
-            MediaStore.Audio.Media._ID
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.DATE_ADDED
         )
-        val cursor = context.contentResolver.query(uri, projection, null, null, order)
+        val cursor = this.contentResolver.query(uri, projection, null, null, order)
         if (cursor!=null){
             while(cursor.moveToNext()){
                 val album = cursor.getString(0)
@@ -221,9 +247,10 @@ class MainActivity : AppCompatActivity(){
                 val duration = cursor.getString(2)
                 val path = cursor.getString(3)
                 val artist = cursor.getString(4)
-                val id = cursor.getString(5)
+                val spId = cursor.getString(5)
+                val dateAdded = cursor.getString(6)
 
-                val musicFiles = MusicFiles(path,title,artist,album,duration,id)
+                val musicFiles = MusicFiles(path,title,artist,album,duration,spId,dateAdded)
                 tempAudioList.add(musicFiles)
                 if (!duplicate.contains(album)){
                     albums.add(musicFiles)
@@ -233,6 +260,30 @@ class MainActivity : AppCompatActivity(){
             cursor.close()
         }
         musicFiles = tempAudioList
-        return tempAudioList
+    }
+
+    private fun mergeAll(dbMusics: List<MusicFiles>){
+        for(it in 0 until musicFiles.size){
+            var isNew = true
+            for(dbMus in dbMusics){
+                if(musicFiles[it].sp_id==dbMus.sp_id){
+                    musicFiles[it] = dbMus
+                    isNew = false
+                }
+            }
+            if(isNew){
+                saveToDB(musicFiles[it])
+            }
+        }
+    }
+
+    private fun saveToDB(music: MusicFiles){
+        class SaveMusic : AsyncTask<Void, Void, Void>(){
+            override fun doInBackground(vararg p0: Void?): Void? {
+                DatabaseClient.getInstance(applicationContext).getAppDatabase().musicFilesDao().insert(music)
+                Log.e("LOOK HERE", "added"+music.name)
+                return null
+            }
+        }
     }
 }

@@ -10,17 +10,12 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Bundle
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
+import android.os.*
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.palette.graphics.Palette
 import androidx.viewpager.widget.ViewPager
-import com.bumptech.glide.Glide
 import com.example.chameleody.MusicService
 import com.example.chameleody.R
 import com.example.chameleody.activity.MainActivity.Companion.REPEAT_ALL
@@ -30,14 +25,11 @@ import com.example.chameleody.activity.MainActivity.Companion.SHUFFLE_SMART
 import com.example.chameleody.activity.MainActivity.Companion.currentShuffle
 import com.example.chameleody.activity.MainActivity.Companion.currentSongPos
 import com.example.chameleody.activity.MainActivity.Companion.currentSongs
-import com.example.chameleody.adapter.AlbumDetailsAdapter.Companion.albumFiles
-import com.example.chameleody.adapter.SongsAdapter.Companion.mFiles
 import com.example.chameleody.fragment.CoverArtFragment
 import com.example.chameleody.fragment.GeneralInfoFragment
 import com.example.chameleody.fragment.LyricsFragment
 import com.example.chameleody.fragment.MoodFragment
 import com.google.android.material.tabs.TabLayout
-import kotlinx.android.synthetic.main.activity_player.*
 
 class PlayerActivity : AppCompatActivity(), ServiceConnection{
     private lateinit var songName : TextView
@@ -48,32 +40,70 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
     private lateinit var prevBtn : ImageView
     private lateinit var backBtn : ImageView
     private lateinit var shuffleBtn : ImageView
-    private lateinit var repeatBtn : ImageView
+    private lateinit var smartShuffleBtn : ImageView
     private lateinit var playPauseBtn : Button
     private lateinit var seekBar : SeekBar
     private lateinit var musicService: MusicService
     private lateinit var uri : Uri
     private lateinit var handler : Handler
+    private var startNew = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
+        uri = Uri.parse(currentSongs[currentSongPos].path)
+        startNew = intent.getBooleanExtra("new", true)
         initViews()
-        getIntentMethod()
+        handler = Handler(Looper.getMainLooper())
+        initListeners()
+        //getIntentMethod()
+    }
+
+    override fun onResume() {
+        val intent = Intent(this, MusicService::class.java)
+        applicationContext.bindService(intent, this, Context.BIND_AUTO_CREATE)
+        refreshViews()
+        super.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        applicationContext.unbindService(this)
+    }
+
+    private fun initListeners(){
+        playPauseBtn.setOnClickListener {playPauseBtnClicked()}
+        prevBtn.setOnClickListener { prevBtnClicked() }
+        nextBtn.setOnClickListener{ nextBtnClicked()}
+        shuffleBtn.setOnClickListener {
+            if (currentShuffle == 4) currentShuffle = 1
+            else currentShuffle++
+            shuffleBtn.setImageResource(when(currentShuffle) {
+                REPEAT_ONE -> R.drawable.repeat_one
+                REPEAT_ALL -> R.drawable.repeat_all
+                SHUFFLE_ALL -> R.drawable.shuffle_all
+                SHUFFLE_SMART -> R.drawable.shuffle_smart
+                else -> R.drawable.repeat_all
+            })
+        }
+        smartShuffleBtn.setOnClickListener {
+            TODO()
+        }
+        backBtn.setOnClickListener {
+            finish()
+        }
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBarNotMy: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (::musicService.isInitialized && fromUser){
                     musicService.seekTo(progress * 1000)
+                    val mCurrentPosition = musicService.currentPosition/1000
+                    seekBar.progress = mCurrentPosition
+                    durationPlayed.text = formattedTime(mCurrentPosition)
                 }
-                val mCurrentPosition = musicService.currentPosition/1000
-                seekBar.progress = mCurrentPosition
-                durationPlayed.text = formattedTime(mCurrentPosition)
             }
             override fun onStartTrackingTouch(p0: SeekBar?) {}
             override fun onStopTrackingTouch(p0: SeekBar?) {}
         })
-
-        handler = Handler(Looper.getMainLooper())
         this@PlayerActivity.runOnUiThread(runnable {
             if (::musicService.isInitialized){
                 val mCurrentPosition = musicService.currentPosition/1000
@@ -82,56 +112,40 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
             }
             handler.postDelayed(this, 1000)
         })
-        shuffleBtn.setOnClickListener {
-            if (currentShuffle == 4) currentShuffle = 1
-            else currentShuffle++
-            when (currentShuffle) {
-                REPEAT_ONE -> shuffleBtn.setImageResource(R.drawable.repeat_one)
-                REPEAT_ALL -> shuffleBtn.setImageResource(R.drawable.repeat_all)
-                SHUFFLE_ALL -> shuffleBtn.setImageResource(R.drawable.shuffle_all)
-                SHUFFLE_SMART -> shuffleBtn.setImageResource(R.drawable.shuffle_smart)
-            }
-        }
-        repeatBtn.setOnClickListener {
-            TODO()
-        }
-        backBtn.setOnClickListener {
-            finish()
-        }
     }
 
-    override fun onResume() {
-        val intent = Intent(this, MusicService::class.java)
-        bindService(intent, this, Context.BIND_AUTO_CREATE)
-        playPauseBtn.setOnClickListener {playPauseBtnClicked()}
-        prevBtn.setOnClickListener { prevBtnClicked() }
-        nextBtn.setOnClickListener{ nextBtnClicked()}
-        super.onResume()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        unbindService(this)
+    private fun refreshViews(){
+        if(this::musicService.isInitialized){
+            playPauseBtn.setBackgroundResource(
+                if(musicService.isPlaying) R.drawable.ic_baseline_pause_24
+                else R.drawable.ic_baseline_play_arrow_24)
+            seekBar.max = musicService.duration / 1000
+            val mCurrentPosition = musicService.currentPosition/1000
+            seekBar.progress = mCurrentPosition
+            durationPlayed.text = formattedTime(mCurrentPosition)
+        }
+        shuffleBtn.setImageResource(when(currentShuffle) {
+            REPEAT_ONE -> R.drawable.repeat_one
+            REPEAT_ALL -> R.drawable.repeat_all
+            SHUFFLE_ALL -> R.drawable.shuffle_all
+            SHUFFLE_SMART -> R.drawable.shuffle_smart
+            else -> R.drawable.repeat_all
+        })
+        songName.text = currentSongs[currentSongPos].name
+        artistName.text = currentSongs[currentSongPos].artist
+        uri = Uri.parse(currentSongs[currentSongPos].path)
+        metaData(uri)
     }
 
     private fun nextBtnClicked() {
         musicService.nextBtnClicked()
-        uri = Uri.parse(currentSongs[currentSongPos].path)
-        metaData(uri)
-        songName.text = currentSongs[currentSongPos].title
-        artistName.text = currentSongs[currentSongPos].artist
-        initSeekThread()
+        refreshViews()
         musicService.showNotification(R.drawable.ic_baseline_pause_24)
-        playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
     }
 
     private fun prevBtnClicked() {
         musicService.prevBtnClicked()
-        uri = Uri.parse(currentSongs[currentSongPos].path)
-        metaData(uri)
-        songName.text = currentSongs[currentSongPos].title
-        artistName.text = currentSongs[currentSongPos].artist
-        initSeekThread()
+        refreshViews()
         musicService.showNotification(R.drawable.ic_baseline_pause_24)
         playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
     }
@@ -146,18 +160,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
             musicService.showNotification(R.drawable.ic_baseline_pause_24)
         }
         musicService.playPauseBtnClicked()
-        initSeekThread()
-    }
-
-    private fun initSeekThread(){
-        seekBar.max = musicService.duration / 1000
-        this@PlayerActivity.runOnUiThread(runnable {
-            if (::musicService.isInitialized){
-                val mCurrentPosition = musicService.currentPosition/1000
-                seekBar.progress = mCurrentPosition
-            }
-            handler.postDelayed(this, 1000)
-        })
     }
 
     private fun formattedTime(mCurrentPosition: Int): String {
@@ -172,15 +174,6 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
         }
     }
 
-    private fun getIntentMethod() {
-        currentSongPos = intent.getIntExtra("position", 0)
-        val sender = intent.getStringExtra("sender")
-        currentSongs = if (sender != null && sender == "albumDetails") albumFiles //currentSongs must be already changed to album files from albumAdapter
-                    else mFiles
-        playPauseBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
-        uri = Uri.parse(currentSongs[currentSongPos].path)
-    }
-
     private fun initViews() {
         songName = findViewById(R.id.song_name)
         artistName = findViewById(R.id.song_artist)
@@ -190,7 +183,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
         prevBtn = findViewById(R.id.id_prev)
         backBtn = findViewById(R.id.back_btn)
         shuffleBtn = findViewById(R.id.id_shuffle)
-        repeatBtn = findViewById(R.id.id_repeat)
+        smartShuffleBtn = findViewById(R.id.id_smart_shuffle)
         playPauseBtn = findViewById(R.id.play_pause)
         seekBar = findViewById(R.id.seekbar)
 
@@ -262,16 +255,31 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         val myBinder = service as MusicService.MyBinder
         musicService = myBinder.service
-        musicService.playMedia(currentSongPos)
-        seekBar.max = musicService.duration / 1000
-        metaData(uri)
-        songName.text = currentSongs[currentSongPos].title
-        artistName.text = currentSongs[currentSongPos].artist
-        musicService.onCompleted()
+        if(startNew) musicService.playMedia(currentSongPos)
+        startNew = false
+        musicService.initListener()
         musicService.showNotification(R.drawable.ic_baseline_pause_24)
+        refreshViews()
+        val serviceMsg = musicService.messenger
+        try {
+            val msg = Message.obtain(null, MusicService.MSG_REGISTER_CLIENT)
+            msg.replyTo = messenger
+            serviceMsg.send(msg)
+        }catch (ignore: RemoteException){}
     }
 
     override fun onServiceDisconnected(p0: ComponentName?) {
         //musicService = null
+    }
+
+    private val messenger = Messenger(IncomingHandler())
+
+    inner class IncomingHandler: Handler(){
+        override fun handleMessage(msg: Message) {
+            if(msg.what == MusicService.MSG_COMPLETED){
+                refreshViews()
+            }
+            else super.handleMessage(msg)
+        }
     }
 }

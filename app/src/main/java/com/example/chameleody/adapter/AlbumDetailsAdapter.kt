@@ -30,7 +30,7 @@ class AlbumDetailsAdapter(private val mContext: Context?, private val albumFiles
     }
 
     override fun onBindViewHolder(holder: MyViewHolderAlbum, position: Int) {
-        holder.albumName.text = albumFiles[position].title
+        holder.albumName.text = albumFiles[position].name
         val image = getAlbumArt(albumFiles[position].path)
         if (mContext != null) {
             if (image != null) {

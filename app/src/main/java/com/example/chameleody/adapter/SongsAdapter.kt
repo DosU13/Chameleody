@@ -39,7 +39,7 @@ class SongsAdapter(private val mContext: Context?, private val mFilesVal: ArrayL
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.fileName.text = mFiles[position].title
+        holder.fileName.text = mFiles[position].name
         val image = getAlbumArt(mFiles[position].path)
         if (mContext != null) {
             if (image != null) {
@@ -75,8 +75,8 @@ class SongsAdapter(private val mContext: Context?, private val mFilesVal: ArrayL
     }
 
     private fun deleteFile(position: Int, v: View?) {
-        val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mFiles[position].id.toLong())
-        val file = File(mFiles[position].id)
+        val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, mFiles[position].sp_id.toLong())
+        val file = File(mFiles[position].sp_id)
         val deleted = file.delete()
         if (deleted) {
             mContext?.contentResolver?.delete(contentUri,null,null)

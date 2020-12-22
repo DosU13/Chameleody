@@ -9,13 +9,13 @@ import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Binder
-import android.os.IBinder
+import android.os.*
 import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.chameleody.activity.MainActivity.Companion.REPEAT_ALL
+import com.example.chameleody.activity.MainActivity.Companion.REPEAT_ONE
 import com.example.chameleody.activity.MainActivity.Companion.SHUFFLE_ALL
 import com.example.chameleody.activity.MainActivity.Companion.SHUFFLE_SMART
 import com.example.chameleody.activity.MainActivity.Companion.currentShuffle
@@ -24,7 +24,11 @@ import com.example.chameleody.activity.MainActivity.Companion.currentSongs
 import com.example.chameleody.activity.PlayerActivity
 import kotlin.random.Random
 
-class MusicService : Service(), MediaPlayer.OnCompletionListener {
+class MusicService : Service(){
+    companion object {
+        const val MSG_REGISTER_CLIENT = 0
+        const val MSG_COMPLETED = 1
+    }
     private var mBinder: IBinder = MyBinder()
     lateinit var mediaPlayer: MediaPlayer
     private lateinit var mediaSessionCompat: MediaSessionCompat
@@ -46,6 +50,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
     inner class MyBinder : Binder() {
         val service: MusicService
             get() = this@MusicService
+
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -72,6 +77,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
         }
         return START_STICKY
     }
+
     fun playMedia(startPosition : Int) {
         currentSongPos = startPosition
         if (::mediaPlayer.isInitialized) {
@@ -82,7 +88,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
         mediaPlayer.start()
     }
 
-    fun createMediaPlayer(positionInner : Int) {
+    private fun createMediaPlayer(positionInner : Int) {
         if (positionInner < currentSongs.size) {
             currentSongPos = positionInner
             uri = Uri.parse(currentSongs[currentSongPos].path)
@@ -99,12 +105,12 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
         mediaPlayer.stop()
         mediaPlayer.release()
         when(currentShuffle) {
-            REPEAT_ALL -> currentSongPos = ((currentSongPos + 1) % currentSongs.size)
+            REPEAT_ALL, REPEAT_ONE -> currentSongPos = ((currentSongPos + 1) % currentSongs.size)
             SHUFFLE_ALL -> currentSongPos = Random.nextInt(0,currentSongs.size)
             SHUFFLE_SMART -> TODO()
         }
         createMediaPlayer(currentSongPos)
-        onCompleted()
+        initListener()
         mediaPlayer.start()
     }
 
@@ -112,13 +118,13 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
         mediaPlayer.stop()
         mediaPlayer.release()
         when(currentShuffle) {
-            REPEAT_ALL -> currentSongPos = if(currentSongPos==0) currentSongs.size-1
+            REPEAT_ALL, REPEAT_ONE -> currentSongPos = if(currentSongPos==0) currentSongs.size-1
                                             else currentSongPos -1
             SHUFFLE_ALL -> currentSongPos = Random.nextInt(0,currentSongs.size)
             SHUFFLE_SMART -> TODO()
         }
         createMediaPlayer(currentSongPos)
-        onCompleted()
+        initListener()
         mediaPlayer.start()
     }
 
@@ -126,20 +132,26 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
         mediaPlayer.seekTo(position)
     }
 
-    fun onCompleted() {
-        mediaPlayer.setOnCompletionListener(this)
-    }
-
-    override fun onCompletion(p0: MediaPlayer?) {
-        nextBtnClicked()
-        createMediaPlayer(currentSongPos)
-        mediaPlayer.start()
-        onCompleted()
+    fun initListener() {
+        mediaPlayer.setOnCompletionListener{
+            mediaPlayer.stop()
+            mediaPlayer.release()
+            when(currentShuffle) {
+                REPEAT_ALL -> currentSongPos = if(currentSongPos==0) currentSongs.size-1
+                else currentSongPos -1
+                SHUFFLE_ALL -> currentSongPos = Random.nextInt(0,currentSongs.size)
+                SHUFFLE_SMART -> TODO()
+            }
+            createMediaPlayer(currentSongPos)
+            initListener()
+            mediaPlayer.start()
+            sentMsg(MSG_COMPLETED)
+        }
     }
 
     fun showNotification(playPauseBtn : Int){
-        val intent = Intent(this, PlayerActivity::class.java)
-        val contentIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
+        //val intent = Intent(this, PlayerActivity::class.java)
+        //val contentIntent = PendingIntent.getBroadcast(this, 0, intent, 0)
         val prevIntent = Intent(this, PlayerActivity::class.java).setAction(ApplicationClass.ACTION_PREVIOUS)
         val prevPending = PendingIntent.getBroadcast(this, 0, prevIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val pauseIntent = Intent(this, PlayerActivity::class.java).setAction(ApplicationClass.ACTION_PLAY)
@@ -154,7 +166,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
         }
         val notification = NotificationCompat.Builder(this, ApplicationClass.CHANNEL_ID_2).
         setSmallIcon(playPauseBtn).setLargeIcon(thumb).
-        setContentTitle(currentSongs[currentSongPos].title).setContentText(currentSongs[currentSongPos].artist).
+        setContentTitle(currentSongs[currentSongPos].name).setContentText(currentSongs[currentSongPos].artist).
         addAction(R.drawable.prev, "Previous", prevPending).
         addAction(playPauseBtn, "Pause", pausePending).
         addAction(R.drawable.next, "Next", nextPending).
@@ -172,5 +184,25 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener {
         val art = retriever.embeddedPicture
         retriever.release()
         return art
+    }
+
+    private fun sentMsg(msg: Int){
+        for(client in clients){
+            try{
+                client.send(Message.obtain(null, msg))
+            }catch (e: RemoteException){
+                clients.remove(client)
+            }
+        }
+    }
+
+    val messenger = Messenger(IncomingHandler())
+    val clients = ArrayList<Messenger>()
+    inner class IncomingHandler : Handler() {
+        override fun handleMessage(msg: Message) {
+            if(msg.what == MSG_REGISTER_CLIENT){
+                clients.add(msg.replyTo)
+            }else super.handleMessage(msg)
+        }
     }
 }

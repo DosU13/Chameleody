@@ -5,9 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.media.MediaMetadataRetriever
-import android.net.Uri
-import android.os.Bundle
-import android.os.IBinder
+import android.os.*
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,9 +20,7 @@ import com.example.chameleody.R
 import com.example.chameleody.activity.MainActivity.Companion.currentSongPos
 import com.example.chameleody.activity.MainActivity.Companion.currentSongs
 import com.example.chameleody.activity.PlayerActivity
-import com.example.chameleody.adapter.SongsAdapter
 import com.example.chameleody.model.MusicFiles
-import kotlinx.android.synthetic.main.activity_player.*
 
 class PlayerFragment : Fragment(), ServiceConnection{
     lateinit var musicService: MusicService
@@ -42,30 +38,26 @@ class PlayerFragment : Fragment(), ServiceConnection{
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initViews(view)
-        if (currentSongPos < currentSongs.size) {
-            val currentSong: MusicFiles = currentSongs[currentSongPos]
-            val image = getAlbumArt(currentSong.path)
-            if (image != null) {
-                activity?.let { Glide.with(it).asBitmap().load(image).into(art) }
-            } else {
-                activity?.let { Glide.with(it).load(R.drawable.default_art).into(art) }
-            }
-            name.text = currentSong.title
-            artist.text = currentSong.artist
-        }
+        initListeners()
+        refreshViews()
     }
 
     override fun onResume() {
         val intent = Intent(activity, MusicService::class.java)
         activity?.bindService(intent, this, Context.BIND_AUTO_CREATE)
+        refreshViews()
+        super.onResume()
+    }
+
+    private fun initListeners(){
         playBtn.setOnClickListener {playPauseBtnClicked()}
         prevBtn.setOnClickListener { prevBtnClicked() }
         nextBtn.setOnClickListener{ nextBtnClicked()}
         playerLayout.setOnClickListener {
             val intent = Intent(activity, PlayerActivity::class.java)
+            intent.putExtra("new", false)
             activity?.startActivity(intent)
         }
-        super.onResume()
     }
 
     private fun initViews(view: View) {
@@ -78,18 +70,23 @@ class PlayerFragment : Fragment(), ServiceConnection{
         nextBtn = view.findViewById(R.id.next_player_fr)
     }
 
-    private fun setViews(){
-        val image = getAlbumArt(currentSongs[currentSongPos].path)
-        if (image != null) activity?.let { Glide.with(it).asBitmap().load(image).into(art) }
-        else activity?.let {Glide.with(it).load(R.drawable.default_art).into(art)}
-        name.text = currentSongs[currentSongPos].title
-        artist.text = currentSongs[currentSongPos].artist
-        if (musicService.isPlaying){
-            musicService.showNotification(R.drawable.ic_baseline_pause_24)
-            playBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
-        }else{
-            musicService.showNotification(R.drawable.ic_baseline_play_arrow_24)
-            playBtn.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24)
+    private fun refreshViews(){
+        if (currentSongPos < currentSongs.size) {
+            val currentSong = currentSongs[currentSongPos]
+            val image = getAlbumArt(currentSong.path)
+            if (image != null) activity?.let { Glide.with(it).asBitmap().load(image).into(art) }
+            else activity?.let { Glide.with(it).load(R.drawable.default_art).into(art) }
+            name.text = currentSong.name
+            artist.text = currentSong.artist
+            if (::musicService.isInitialized) {
+                if (musicService.isPlaying) {
+                    musicService.showNotification(R.drawable.ic_baseline_pause_24)
+                    playBtn.setBackgroundResource(R.drawable.ic_baseline_pause_24)
+                } else {
+                    musicService.showNotification(R.drawable.ic_baseline_play_arrow_24)
+                    playBtn.setBackgroundResource(R.drawable.ic_baseline_play_arrow_24)
+                }
+            }
         }
     }
 
@@ -106,17 +103,23 @@ class PlayerFragment : Fragment(), ServiceConnection{
 
     private fun nextBtnClicked(){
         musicService.nextBtnClicked()
-        setViews()
+        refreshViews()
     }
 
     private fun prevBtnClicked(){
         musicService.prevBtnClicked()
-        setViews()
+        refreshViews()
     }
 
     override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
         val myBinder = service as MusicService.MyBinder
         musicService = myBinder.service
+        val serviceMsg = musicService.messenger
+        try {
+            val msg = Message.obtain(null, MusicService.MSG_REGISTER_CLIENT)
+            msg.replyTo = messenger
+            serviceMsg.send(msg)
+        }catch (ignore: RemoteException){}
     }
 
     override fun onServiceDisconnected(p0: ComponentName?) {}
@@ -127,5 +130,16 @@ class PlayerFragment : Fragment(), ServiceConnection{
         val art = retriever.embeddedPicture
         retriever.release()
         return art
+    }
+
+    private val messenger = Messenger(IncomingHandler())
+
+    inner class IncomingHandler: Handler(){
+        override fun handleMessage(msg: Message) {
+            if(msg.what == MusicService.MSG_COMPLETED){
+                refreshViews()
+            }
+            else super.handleMessage(msg)
+        }
     }
 }

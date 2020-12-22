@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.room.Room
 
 class DatabaseClient(mCtx: Context) {
-    private val appDatabase: AppDatabase = Room.databaseBuilder(mCtx, AppDatabase::class.java, "MyMusics").build()
+    private val appDatabase: AppDatabase = Room.databaseBuilder(mCtx, AppDatabase::class.java, "MusicFiles").build()
 
     companion object{
         lateinit var mInstance: DatabaseClient
         @Synchronized
         public fun getInstance(mCtx: Context): DatabaseClient{
-            if(this::mInstance.isInitialized) mInstance = DatabaseClient(mCtx)
+            if(!this::mInstance.isInitialized) mInstance = DatabaseClient(mCtx)
             return mInstance
         }
     }
