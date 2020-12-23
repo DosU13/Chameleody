@@ -7,12 +7,19 @@ import android.widget.Toast
 import com.example.chameleody.activity.MainActivity
 import com.example.chameleody.db.MusicViewModel
 import com.example.chameleody.model.MusicFile
+import java.util.*
+import kotlin.collections.ArrayList
 
 class FilesManager {
     companion object {
         val instance = FilesManager()
+        const val SECONDS_IN_DAY = 86400
+        const val NOT_EXPLORED = 0
+        const val NEW = 14
+        const val COMMON = 61
+        const val OLD = 365
+        const val NOSTALGIC = 1095
     }
-
     var currentSongs = ArrayList<MusicFile>()
     var currentSongPos = 0
     var spMusicFiles = ArrayList<MusicFile>()
@@ -22,6 +29,31 @@ class FilesManager {
     val currentSong: MusicFile get() = currentSongs[currentSongPos]
     lateinit var mainActivity: MainActivity
     lateinit var musicViewModel: MusicViewModel
+    private val currentTime = Calendar.getInstance().time.time/1000
+    var age : Int
+        get() {
+            val date = currentSong.dateAdded.toLong()
+            val days = (currentTime - date)/ SECONDS_IN_DAY
+            Log.e("LOOK HERE", days.toString())
+            return when {
+                days< NEW -> 0
+                days< COMMON -> 1
+                days< OLD -> 2
+                days< NOSTALGIC -> 3
+                else -> 4
+            }
+        }
+        set(int){
+            val setAge = when(int){
+                0-> NOT_EXPLORED
+                1-> NEW
+                2-> COMMON
+                3-> OLD
+                else -> NOSTALGIC
+            }
+            currentSong.dateAdded = (currentTime - setAge* SECONDS_IN_DAY).toString()
+        }
+
 
     fun viewModelReady(musics: List<MusicFile>){
         Toast.makeText(mainActivity, "db is ready, man", Toast.LENGTH_LONG).show()
@@ -97,6 +129,9 @@ class FilesManager {
 
     private fun saveToDB(music: MusicFile){
         musicViewModel.insert(music)
-        Log.e("LOOK HERE", music.name)
+    }
+
+    fun updateToDB(music: MusicFile = currentSong){
+        musicViewModel.update(music)
     }
 }

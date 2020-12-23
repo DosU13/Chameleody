@@ -10,13 +10,14 @@
         <item>Other</item>
     </string-array>
     <string-array name="age">
-        <item>not explored</item>
-        <item>new</item>
-        <item>common</item>
-        <item>old</item>
-        <item>nostalgic</item>
+        <item>not explored(&lt;14 days)</item>
+        <item>new(14–60 days)</item>
+        <item>common(2–12 months)</item>
+        <item>old(1–3 years)</item>
+        <item>nostalgic(>3 years)</item>
     </string-array>
     <string-array name="genre">
+        <item>Unknown</item>
         <item>House</item>
         <item>Big Room</item>
         <item>Electro</item>
@@ -27,6 +28,5 @@
         <item>Future Bass</item>
         <item>Hardstyle</item>
         <item>Techno</item>
-        <item>Other</item>
     </string-array>
 </resources>

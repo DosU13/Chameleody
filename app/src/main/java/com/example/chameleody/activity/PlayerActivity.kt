@@ -86,7 +86,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
             })
         }
         smartShuffleBtn.setOnClickListener {
-            TODO()
+
         }
         backBtn.setOnClickListener {
             finish()
@@ -134,6 +134,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
         artistName.text = fm.currentSong.artist
         uri = Uri.parse(fm.currentSong.path)
         metaData(uri)
+        lyricsFragment.refreshViews()
+        coverArtFragment.refreshViews()
+        infoFragment.refreshViews()
+        moodFragment.refreshViews()
     }
 
     private fun nextBtnClicked() {
@@ -173,6 +177,10 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
         }
     }
 
+    lateinit var lyricsFragment: LyricsFragment
+    lateinit var coverArtFragment: CoverArtFragment
+    lateinit var infoFragment: GeneralInfoFragment
+    lateinit var moodFragment: MoodFragment
     private fun initViews() {
         songName = findViewById(R.id.song_name)
         artistName = findViewById(R.id.song_artist)
@@ -190,11 +198,16 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
         val tabLayout: TabLayout = findViewById(R.id.tabDots)
         tabLayout.setupWithViewPager(viewPager, true)
         val viewPagerAdapter = MainActivity.ViewPagerAdapter(supportFragmentManager)
-        viewPagerAdapter.addFragments(LyricsFragment(), "")
-        viewPagerAdapter.addFragments(CoverArtFragment(), "")
-        viewPagerAdapter.addFragments(GeneralInfoFragment(), "")
-        viewPagerAdapter.addFragments(MoodFragment(), "")
+        lyricsFragment = LyricsFragment()
+        coverArtFragment = CoverArtFragment()
+        infoFragment = GeneralInfoFragment()
+        moodFragment = MoodFragment()
+        viewPagerAdapter.addFragments(lyricsFragment, "")
+        viewPagerAdapter.addFragments(coverArtFragment, "")
+        viewPagerAdapter.addFragments(infoFragment, "")
+        viewPagerAdapter.addFragments(moodFragment, "")
         viewPager.adapter = viewPagerAdapter
+        viewPager.currentItem = 1
     }
 
     private fun metaData(uri: Uri){

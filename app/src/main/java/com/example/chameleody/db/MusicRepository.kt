@@ -13,4 +13,10 @@ class MusicRepository(private val musicFilesDao: MusicFilesDao) {
     suspend fun insert(musicFile: MusicFile){
         musicFilesDao.insert(musicFile)
     }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun update(musicFile: MusicFile){
+        musicFilesDao.update(musicFile)
+    }
 }

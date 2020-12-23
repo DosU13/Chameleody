@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity(){
 //        val shuffleBtn : Button = findViewById(R.id.shuffle_all_main)
 //        val smartShuffle : LinearLayout = findViewById(R.id.adv_shuffle_all_main)
         val sortOptions : Button = findViewById(R.id.sort_options_main)
-//        val showOptions : Button = findViewById(R.id.show_by_main)
+        val showOptions : Button = findViewById(R.id.show_by_main)
 
         searchBar.setOnQueryTextListener(object: OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {

@@ -145,8 +145,8 @@
             android:layout_marginStart="16dp"/>
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:id="@+id/play_pause"
             android:src="@drawable/ic_baseline_play_arrow_24"
             android:layout_centerHorizontal="true"

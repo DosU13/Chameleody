@@ -23,13 +23,13 @@ class MusicFile (
     @ColumnInfo(name="sp_id")
     val sp_id : String,
     @ColumnInfo(name="date_added")
-    val dateAdded: String,
+    var dateAdded: String,
     @ColumnInfo(name="genre")
-    val genre: Int,
+    var genre: Int,
     @ColumnInfo(name="version")
-    val version: Int,
+    var version: Int,
     @ColumnInfo(name="mood")
-    val mood: Int
+    var mood: Int
 ) : Serializable {
     constructor(path: String, title: String, artist: String, album: String, duration: String, sp_id: String, dateAdded: String):
         this(0, path, title, artist, album, duration, sp_id, dateAdded, 0, 0, 0)

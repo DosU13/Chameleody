@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.example.chameleody.FilesManager
 import com.example.chameleody.R
 
 class MoodFragment : Fragment() {
@@ -60,6 +61,7 @@ class MoodFragment : Fragment() {
         row.addView(Space(activity))
         row.addView(Space(activity))
         table.addView(row)
+        refreshViews()
     }
 
     var slc: Int = 0
@@ -79,18 +81,28 @@ class MoodFragment : Fragment() {
             tv.backgroundTintList = ColorStateList.valueOf(setDefaultColor(row, col))
         }
         tv.setOnClickListener {
-            val r = if(slc==0) 5 else (slc-1)/5
-            val c = if(slc==0) 0 else (slc-1)%5
-            val selectedTV = if(slc==0) noTxt else texts[r][c]
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                selectedTV.backgroundTintList = ColorStateList.valueOf(setDefaultColor(r, c))
-                tv.backgroundTintList = ColorStateList.valueOf(Color.parseColor(colors[row][col]))
-            }
-            selectedTV.setTypeface(null, Typeface.NORMAL)
-            tv.setTypeface(null, Typeface.BOLD)
-            slc = if (row==5) 0 else row*5+col+1
+            setSelection(if(row==5) 0 else row*5+col+1)
+            FilesManager.instance.currentSong.mood = slc
+            FilesManager.instance.updateToDB()
         }
         return tv
+    }
+
+    private fun setSelection(position: Int){
+        if (!::noTxt.isInitialized) return
+        val rowOld = if(slc==0) 5 else (slc-1)/5
+        val colOld = if(slc==0) 0 else (slc-1)%5
+        val oldTv = if(slc==0) noTxt else texts[rowOld][colOld]
+        val rowNew = if(position==0) 5 else (position-1)/5
+        val colNew = if(position==0) 0 else (position-1)%5
+        val newTv = if(position==0) noTxt else texts[rowNew][colNew]
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            oldTv.backgroundTintList = ColorStateList.valueOf(setDefaultColor(rowOld, colOld))
+            newTv.backgroundTintList = ColorStateList.valueOf(Color.parseColor(colors[rowNew][colNew]))
+        }
+        oldTv.setTypeface(null, Typeface.NORMAL)
+        newTv.setTypeface(null, Typeface.BOLD)
+        slc = if (rowNew==5) 0 else rowNew*5+colNew+1
     }
 
     private fun setDefaultColor(row: Int, col: Int) : Int{
@@ -101,5 +113,9 @@ class MoodFragment : Fragment() {
         hsv[2] *= 0.5f
         color = Color.HSVToColor(hsv)
         return color
+    }
+
+    fun refreshViews() {
+        setSelection(FilesManager.instance.currentSong.mood)
     }
 }

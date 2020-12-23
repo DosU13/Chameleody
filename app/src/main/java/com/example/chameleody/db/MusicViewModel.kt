@@ -10,4 +10,8 @@ class MusicViewModel(private val repository: MusicRepository): ViewModel() {
     fun insert(musicFile: MusicFile) = viewModelScope.launch {
         repository.insert(musicFile)
     }
+
+    fun update(musicFile: MusicFile) = viewModelScope.launch {
+        repository.update(musicFile)
+    }
 }

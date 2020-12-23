@@ -15,6 +15,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
+import com.example.chameleody.FilesManager
 import com.example.chameleody.R
 
 class CoverArtFragment : Fragment() {
@@ -23,18 +24,19 @@ class CoverArtFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_cover_art, container, false)
+        val layout = inflater.inflate(R.layout.fragment_cover_art, container, false)
+        metaData(Uri.parse(FilesManager.instance.currentSong.path))
+        return layout
     }
 
     private fun metaData(uri: Uri){
-        val coverArt = activity?.findViewById<ImageView>(R.id.cover_art)
-        val gradient = activity?.findViewById<ImageView>(R.id.imageViewGradient)
+        val coverArt = view?.findViewById<ImageView>(R.id.cover_art)
+        val gradient = view?.findViewById<ImageView>(R.id.imageViewGradient)
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(uri.toString())
         val art : ByteArray? = retriever.embeddedPicture
         val bitmap : Bitmap?
-        if (art != null){
+        if (art != null && coverArt != null){
             bitmap = BitmapFactory.decodeByteArray(art, 0, art.size)
             if (bitmap != null) {
                 imageAnimation(coverArt, bitmap)
@@ -94,5 +96,9 @@ class CoverArtFragment : Fragment() {
             }
         })
         imageView?.startAnimation(animOut)
+    }
+
+    fun refreshViews() {
+        metaData(Uri.parse(FilesManager.instance.currentSong.path))
     }
 }
