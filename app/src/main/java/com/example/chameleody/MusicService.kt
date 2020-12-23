@@ -14,21 +14,19 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import com.example.chameleody.activity.MainActivity.Companion.REPEAT_ALL
-import com.example.chameleody.activity.MainActivity.Companion.REPEAT_ONE
-import com.example.chameleody.activity.MainActivity.Companion.SHUFFLE_ALL
-import com.example.chameleody.activity.MainActivity.Companion.SHUFFLE_SMART
-import com.example.chameleody.activity.MainActivity.Companion.currentShuffle
-import com.example.chameleody.activity.MainActivity.Companion.currentSongPos
-import com.example.chameleody.activity.MainActivity.Companion.currentSongs
 import com.example.chameleody.activity.PlayerActivity
 import kotlin.random.Random
 
 class MusicService : Service(){
     companion object {
+        const val REPEAT_ONE = 1
+        const val REPEAT_ALL = 2
+        const val SHUFFLE_ALL = 3
+        const val SHUFFLE_SMART = 4
         const val MSG_REGISTER_CLIENT = 0
         const val MSG_COMPLETED = 1
     }
+    private val fm = FilesManager.instance
     private var mBinder: IBinder = MyBinder()
     lateinit var mediaPlayer: MediaPlayer
     private lateinit var mediaSessionCompat: MediaSessionCompat
@@ -48,8 +46,7 @@ class MusicService : Service(){
     }
 
     inner class MyBinder : Binder() {
-        val service: MusicService
-            get() = this@MusicService
+        val service: MusicService get() = this@MusicService
 
     }
 
@@ -79,19 +76,19 @@ class MusicService : Service(){
     }
 
     fun playMedia(startPosition : Int) {
-        currentSongPos = startPosition
+        fm.currentSongPos = startPosition
         if (::mediaPlayer.isInitialized) {
             mediaPlayer.stop()
             mediaPlayer.release()
         }
-        createMediaPlayer(currentSongPos)
+        createMediaPlayer(fm.currentSongPos)
         mediaPlayer.start()
     }
 
     private fun createMediaPlayer(positionInner : Int) {
-        if (positionInner < currentSongs.size) {
-            currentSongPos = positionInner
-            uri = Uri.parse(currentSongs[currentSongPos].path)
+        if (positionInner < fm.currentSongs.size) {
+            fm.currentSongPos = positionInner
+            uri = Uri.parse(fm.currentSong.path)
             mediaPlayer = MediaPlayer.create(baseContext, uri)
         }
     }
@@ -104,12 +101,12 @@ class MusicService : Service(){
     fun nextBtnClicked(){
         mediaPlayer.stop()
         mediaPlayer.release()
-        when(currentShuffle) {
-            REPEAT_ALL, REPEAT_ONE -> currentSongPos = ((currentSongPos + 1) % currentSongs.size)
-            SHUFFLE_ALL -> currentSongPos = Random.nextInt(0,currentSongs.size)
+        when(fm.currentShuffle) {
+            REPEAT_ALL, REPEAT_ONE -> fm.currentSongPos = ((fm.currentSongPos + 1) % fm.currentSongs.size)
+            SHUFFLE_ALL -> fm.currentSongPos = Random.nextInt(0,fm.currentSongs.size)
             SHUFFLE_SMART -> TODO()
         }
-        createMediaPlayer(currentSongPos)
+        createMediaPlayer(fm.currentSongPos)
         initListener()
         mediaPlayer.start()
     }
@@ -117,13 +114,13 @@ class MusicService : Service(){
     fun prevBtnClicked(){
         mediaPlayer.stop()
         mediaPlayer.release()
-        when(currentShuffle) {
-            REPEAT_ALL, REPEAT_ONE -> currentSongPos = if(currentSongPos==0) currentSongs.size-1
-                                            else currentSongPos -1
-            SHUFFLE_ALL -> currentSongPos = Random.nextInt(0,currentSongs.size)
+        when(fm.currentShuffle) {
+            REPEAT_ALL, REPEAT_ONE -> fm.currentSongPos = if(fm.currentSongPos==0) fm.currentSongs.size-1
+                                            else fm.currentSongPos -1
+            SHUFFLE_ALL -> fm.currentSongPos = Random.nextInt(0,fm.currentSongs.size)
             SHUFFLE_SMART -> TODO()
         }
-        createMediaPlayer(currentSongPos)
+        createMediaPlayer(fm.currentSongPos)
         initListener()
         mediaPlayer.start()
     }
@@ -136,13 +133,12 @@ class MusicService : Service(){
         mediaPlayer.setOnCompletionListener{
             mediaPlayer.stop()
             mediaPlayer.release()
-            when(currentShuffle) {
-                REPEAT_ALL -> currentSongPos = if(currentSongPos==0) currentSongs.size-1
-                else currentSongPos -1
-                SHUFFLE_ALL -> currentSongPos = Random.nextInt(0,currentSongs.size)
+            when(fm.currentShuffle) {
+                REPEAT_ALL -> fm.currentSongPos = ((fm.currentSongPos + 1) % fm.currentSongs.size)
+                SHUFFLE_ALL -> fm.currentSongPos = Random.nextInt(0,fm.currentSongs.size)
                 SHUFFLE_SMART -> TODO()
             }
-            createMediaPlayer(currentSongPos)
+            createMediaPlayer(fm.currentSongPos)
             initListener()
             mediaPlayer.start()
             sentMsg(MSG_COMPLETED)
@@ -158,7 +154,7 @@ class MusicService : Service(){
         val pausePending = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val nextIntent = Intent(this, PlayerActivity::class.java).setAction(ApplicationClass.ACTION_NEXT)
         val nextPending = PendingIntent.getBroadcast(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val picture = getAlbumArt(currentSongs[currentSongPos].path)
+        val picture = getAlbumArt(fm.currentSong.path)
         val thumb = if (picture!=null){
             BitmapFactory.decodeByteArray(picture, 0, picture.size) }
         else{
@@ -166,7 +162,7 @@ class MusicService : Service(){
         }
         val notification = NotificationCompat.Builder(this, ApplicationClass.CHANNEL_ID_2).
         setSmallIcon(playPauseBtn).setLargeIcon(thumb).
-        setContentTitle(currentSongs[currentSongPos].name).setContentText(currentSongs[currentSongPos].artist).
+        setContentTitle(fm.currentSong.name).setContentText(fm.currentSong.artist).
         addAction(R.drawable.prev, "Previous", prevPending).
         addAction(playPauseBtn, "Pause", pausePending).
         addAction(R.drawable.next, "Next", nextPending).

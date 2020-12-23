@@ -5,10 +5,5 @@
         <item name="windowNoTitle">true</item>
         <item name="colorPrimaryDark">@color/colorDark</item>
     </style>
-<!--    <style name="AppTheme.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar">-->
-<!--        &lt;!&ndash; Customize your theme here. &ndash;&gt;-->
-<!--        <item name="colorPrimary">@color/colorGray</item>-->
-<!--        <item name="colorPrimaryDark">@color/colorDark</item>-->
-<!--        <item name="colorAccent">@color/colorWhite</item>-->
-<!--    </style>-->
+
 </resources>

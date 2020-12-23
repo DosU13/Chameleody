@@ -16,15 +16,13 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.palette.graphics.Palette
 import androidx.viewpager.widget.ViewPager
+import com.example.chameleody.FilesManager
 import com.example.chameleody.MusicService
 import com.example.chameleody.R
-import com.example.chameleody.activity.MainActivity.Companion.REPEAT_ALL
-import com.example.chameleody.activity.MainActivity.Companion.REPEAT_ONE
-import com.example.chameleody.activity.MainActivity.Companion.SHUFFLE_ALL
-import com.example.chameleody.activity.MainActivity.Companion.SHUFFLE_SMART
-import com.example.chameleody.activity.MainActivity.Companion.currentShuffle
-import com.example.chameleody.activity.MainActivity.Companion.currentSongPos
-import com.example.chameleody.activity.MainActivity.Companion.currentSongs
+import com.example.chameleody.MusicService.Companion.REPEAT_ALL
+import com.example.chameleody.MusicService.Companion.REPEAT_ONE
+import com.example.chameleody.MusicService.Companion.SHUFFLE_ALL
+import com.example.chameleody.MusicService.Companion.SHUFFLE_SMART
 import com.example.chameleody.fragment.CoverArtFragment
 import com.example.chameleody.fragment.GeneralInfoFragment
 import com.example.chameleody.fragment.LyricsFragment
@@ -47,11 +45,12 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
     private lateinit var uri : Uri
     private lateinit var handler : Handler
     private var startNew = false
+    private val fm = FilesManager.instance
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
-        uri = Uri.parse(currentSongs[currentSongPos].path)
+        uri = Uri.parse(fm.currentSong.path)
         startNew = intent.getBooleanExtra("new", true)
         initViews()
         handler = Handler(Looper.getMainLooper())
@@ -76,9 +75,9 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
         prevBtn.setOnClickListener { prevBtnClicked() }
         nextBtn.setOnClickListener{ nextBtnClicked()}
         shuffleBtn.setOnClickListener {
-            if (currentShuffle == 4) currentShuffle = 1
-            else currentShuffle++
-            shuffleBtn.setImageResource(when(currentShuffle) {
+            if (fm.currentShuffle == 4) fm.currentShuffle = 1
+            else fm.currentShuffle++
+            shuffleBtn.setImageResource(when(fm.currentShuffle) {
                 REPEAT_ONE -> R.drawable.repeat_one
                 REPEAT_ALL -> R.drawable.repeat_all
                 SHUFFLE_ALL -> R.drawable.shuffle_all
@@ -124,16 +123,16 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
             seekBar.progress = mCurrentPosition
             durationPlayed.text = formattedTime(mCurrentPosition)
         }
-        shuffleBtn.setImageResource(when(currentShuffle) {
+        shuffleBtn.setImageResource(when(fm.currentShuffle) {
             REPEAT_ONE -> R.drawable.repeat_one
             REPEAT_ALL -> R.drawable.repeat_all
             SHUFFLE_ALL -> R.drawable.shuffle_all
             SHUFFLE_SMART -> R.drawable.shuffle_smart
             else -> R.drawable.repeat_all
         })
-        songName.text = currentSongs[currentSongPos].name
-        artistName.text = currentSongs[currentSongPos].artist
-        uri = Uri.parse(currentSongs[currentSongPos].path)
+        songName.text = fm.currentSong.name
+        artistName.text = fm.currentSong.artist
+        uri = Uri.parse(fm.currentSong.path)
         metaData(uri)
     }
 
@@ -201,7 +200,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
     private fun metaData(uri: Uri){
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(uri.toString())
-        val durationTotalInt = Integer.parseInt(currentSongs[currentSongPos].duration) / 1000
+        val durationTotalInt = Integer.parseInt(fm.currentSong.duration) / 1000
         durationTotal.text = formattedTime(durationTotalInt)
         val art : ByteArray? = retriever.embeddedPicture
         val bitmap : Bitmap?
@@ -255,7 +254,7 @@ class PlayerActivity : AppCompatActivity(), ServiceConnection{
     override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
         val myBinder = service as MusicService.MyBinder
         musicService = myBinder.service
-        if(startNew) musicService.playMedia(currentSongPos)
+        if(startNew) musicService.playMedia(fm.currentSongPos)
         startNew = false
         musicService.initListener()
         musicService.showNotification(R.drawable.ic_baseline_pause_24)

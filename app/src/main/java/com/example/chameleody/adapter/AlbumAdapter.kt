@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chameleody.activity.AlbumDetails
 import com.example.chameleody.R
-import com.example.chameleody.model.MusicFiles
+import com.example.chameleody.model.MusicFile
 
-class AlbumAdapter(private val mContext: Context?, private val albumFiles: ArrayList<MusicFiles>) :
+class AlbumAdapter(private val mContext: Context?, private val albumFiles: ArrayList<MusicFile>) :
     RecyclerView.Adapter<AlbumAdapter.MyViewHolderAlbum>() {
 
 

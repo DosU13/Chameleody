@@ -15,23 +15,22 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.chameleody.FilesManager
 import com.example.chameleody.R
-import com.example.chameleody.activity.MainActivity.Companion.currentSongPos
-import com.example.chameleody.activity.MainActivity.Companion.currentSongs
 import com.example.chameleody.activity.PlayerActivity
-import com.example.chameleody.model.MusicFiles
+import com.example.chameleody.model.MusicFile
 import com.google.android.material.snackbar.Snackbar
 import java.io.File
 
-class SongsAdapter(private val mContext: Context?, private val mFilesVal: ArrayList<MusicFiles>) :
+class SongsAdapter(private val mContext: Context?, private val mFileVal: ArrayList<MusicFile>) :
     RecyclerView.Adapter<SongsAdapter.MyViewHolder>(){
     companion object{
-        lateinit var mFiles : ArrayList<MusicFiles>
+        lateinit var mFiles : ArrayList<MusicFile>
     }
-
     init {
-        mFiles = mFilesVal
+        mFiles = mFileVal
     }
+    private val fm = FilesManager.instance
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val view = LayoutInflater.from(mContext).inflate(R.layout.music_items, parent, false)
@@ -51,8 +50,8 @@ class SongsAdapter(private val mContext: Context?, private val mFilesVal: ArrayL
         }
         holder.itemView.setOnClickListener {
             val intent = Intent(mContext, PlayerActivity::class.java)
-            currentSongs = mFiles
-            currentSongPos = position
+            fm.currentSongs = mFiles
+            fm.currentSongPos = position
             intent.putExtra("position", position)
             mContext?.startActivity(intent)
         }
@@ -102,9 +101,9 @@ class SongsAdapter(private val mContext: Context?, private val mFilesVal: ArrayL
         return art
     }
 
-    fun updateList(musicFilesArrayList: ArrayList<MusicFiles>){
-        mFiles = ArrayList<MusicFiles>()
-        mFiles.addAll(musicFilesArrayList)
+    fun updateList(musicFileArrayList: ArrayList<MusicFile>){
+        mFiles = ArrayList<MusicFile>()
+        mFiles.addAll(musicFileArrayList)
         notifyDataSetChanged()
     }
 

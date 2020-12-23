@@ -12,16 +12,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.chameleody.R
 import com.example.chameleody.activity.PlayerActivity
-import com.example.chameleody.model.MusicFiles
+import com.example.chameleody.model.MusicFile
 
-class AlbumDetailsAdapter(private val mContext: Context?, private val albumFilesVal: ArrayList<MusicFiles>) :
+class AlbumDetailsAdapter(private val mContext: Context?, private val albumFileVal: ArrayList<MusicFile>) :
     RecyclerView.Adapter<AlbumDetailsAdapter.MyViewHolderAlbum>() {
     companion object{
-        lateinit var albumFiles : ArrayList<MusicFiles>
+        lateinit var albumFiles : ArrayList<MusicFile>
     }
 
     init {
-        albumFiles = albumFilesVal
+        albumFiles = albumFileVal
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolderAlbum {

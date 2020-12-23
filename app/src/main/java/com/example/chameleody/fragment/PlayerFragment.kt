@@ -15,12 +15,10 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.example.chameleody.FilesManager
 import com.example.chameleody.MusicService
 import com.example.chameleody.R
-import com.example.chameleody.activity.MainActivity.Companion.currentSongPos
-import com.example.chameleody.activity.MainActivity.Companion.currentSongs
 import com.example.chameleody.activity.PlayerActivity
-import com.example.chameleody.model.MusicFiles
 
 class PlayerFragment : Fragment(), ServiceConnection{
     lateinit var musicService: MusicService
@@ -31,6 +29,7 @@ class PlayerFragment : Fragment(), ServiceConnection{
     lateinit var prevBtn: Button
     lateinit var playBtn: Button
     lateinit var nextBtn: Button
+    private val fm = FilesManager.instance
 
    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
        return inflater.inflate(R.layout.fragment_player, container, false)
@@ -71,8 +70,8 @@ class PlayerFragment : Fragment(), ServiceConnection{
     }
 
     private fun refreshViews(){
-        if (currentSongPos < currentSongs.size) {
-            val currentSong = currentSongs[currentSongPos]
+        if (fm.currentSongPos < fm.currentSongs.size) {
+            val currentSong = fm.currentSong
             val image = getAlbumArt(currentSong.path)
             if (image != null) activity?.let { Glide.with(it).asBitmap().load(image).into(art) }
             else activity?.let { Glide.with(it).load(R.drawable.default_art).into(art) }
@@ -114,6 +113,7 @@ class PlayerFragment : Fragment(), ServiceConnection{
     override fun onServiceConnected(p0: ComponentName?, service: IBinder?) {
         val myBinder = service as MusicService.MyBinder
         musicService = myBinder.service
+        refreshViews()
         val serviceMsg = musicService.messenger
         try {
             val msg = Message.obtain(null, MusicService.MSG_REGISTER_CLIENT)

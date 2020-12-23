@@ -5,6 +5,10 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import com.example.chameleody.db.MusicRepository
+import com.example.chameleody.db.MusicRoomDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 
 class ApplicationClass : Application() {
     companion object{
@@ -14,6 +18,10 @@ class ApplicationClass : Application() {
         const val ACTION_NEXT = "actionNext"
         const val ACTION_PLAY = "actionPlay"
     }
+    val applicationScope = CoroutineScope(SupervisorJob())
+    val database by lazy { MusicRoomDatabase.getDatabase(this, applicationScope) }
+    val repository by lazy { MusicRepository(database.musicFilesDao()) }
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()

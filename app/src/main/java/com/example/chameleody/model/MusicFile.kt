@@ -2,11 +2,12 @@ package com.example.chameleody.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.io.Serializable
 
-@Entity
-class MusicFiles (
+@Entity(tableName = "MusicFiles", indices = [Index(value = arrayOf("sp_id"), unique = true)])
+class MusicFile (
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     @ColumnInfo(name="path")

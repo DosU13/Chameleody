@@ -12,7 +12,7 @@ import com.example.chameleody.ApplicationClass.Companion.ACTION_PREVIOUS
 class NotificationReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         Toast.makeText(context, "Received", Toast.LENGTH_LONG).show()
-        Log.v("Notification", "ReceivedReceivedReceivedReceivedReceivedReceivedReceivedReceivedReceivedReceived")
+        Log.v("LOOOOOOOK HEREEEE", "Notification ReceivedReceivedReceivedReceivedReceivedReceivedReceivedReceivedReceivedReceived")
         val actionName = intent?.action
         val serviceIntent = Intent(context, MusicService::class.java)
         if (actionName != null){

@@ -7,22 +7,23 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.chameleody.FilesManager
 import com.example.chameleody.R
-import com.example.chameleody.activity.MainActivity.Companion.musicFiles
 import com.example.chameleody.adapter.AlbumDetailsAdapter
-import com.example.chameleody.model.MusicFiles
+import com.example.chameleody.model.MusicFile
 
 class AlbumDetails : AppCompatActivity() {
-    private val albumSongs = ArrayList<MusicFiles>()
+    private val albumSongs = ArrayList<MusicFile>()
+    private val fm = FilesManager.instance
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_album_details)
         val albumPhoto = findViewById<ImageView>(R.id.album_album_photo)
         val albumName = intent.getStringExtra("albumName")
         var j = 0
-        for (i in 0 until musicFiles.size){
-            if (albumName.equals(musicFiles[i].album)){
-                albumSongs.add(j, musicFiles[i])
+        for (i in 0 until fm.spMusicFiles.size){
+            if (albumName.equals(fm.spMusicFiles[i].album)){
+                albumSongs.add(j, fm.spMusicFiles[i])
                 j++
             }
         }
