@@ -80,7 +80,7 @@ screenshots, name and short description (15 pts)✅ will be
  </tr>
 </table>
 
-<table><tr><td>Player has four shuffle types</td></tr></table>
+<table><tr><td>Player has four shuffle types, on the left of play button, on the right new feature which has not implemented</td></tr></table>
 <table>
   <tr>
     <td>Repeat one, when next or prev pressed it will work like a Repeat All</td>
