@@ -1,4 +1,4 @@
-Chameleody: Music Player with most features which other music players have and more features that other music players don't have. I haven't finished it yet. But, It is enough ready to use.
+Chameleody: Music Player with most features which other music players have and more original features. I haven't finished it yet. But, It is enough ready to use.
 
 
 Final Project requirements:  
