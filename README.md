@@ -1,5 +1,14 @@
 Chameleody: Music Player with most features which other music players have and more original features. I haven't finished it yet. But, It is enough ready to use.
 
+Original Features that I am going to add and which is the reason I am developing and loving this project:
+Ability to add every information about the song: mood, genre, version, age added; also will be added bpm, singer's voice, 
+Ability to add smart templates, which later you can use for smart search and smart shuffle.
+It is like "Version : Original - 100%, Remix - 60%, Cover - 20%, Instrumental - 0%". And for all other classifications
+When you will use it to searching it will show all bigger than 0% or only 100%. If You use it for smart shuffle, I think you understand how it will work
+
+Why I am doing this:
+Everyone uses shuffle in music players, But I wanted a smarter one, I used a 5-star classification of AIMP, but it wasn't enough. Your specifications are changeable of your situation, mood. Sometimes you are sad, sometimes you energized, sometimes you are just only what to hear NightCore remixes, sometimes you want calm, dreaming songs.
+
 
 Final Project requirements:  
 Link to a repository (30 pts max)✅  
