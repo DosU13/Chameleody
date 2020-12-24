@@ -46,7 +46,7 @@ screenshots, name and short description (15 pts)✅ will be
   </tr>
  <tr>
   <td><img src="screenshots/lyrics.jpg"></td>
-  <td><img src="screenshots/player.jpg"></td>
+  <td><img src="screenshots/player_2.jpg"></td>
   <td><img src="screenshots/info.jpg"></td>
   <td><img src="screenshots/mood.jpg"></td>
  </tr>
