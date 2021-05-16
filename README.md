@@ -95,7 +95,7 @@ screenshots, name and short description (15 pts)✅ will be
     <td>Repeat one, when next or prev pressed it will work like a Repeat All</td>
     <td>Repeat All</td>
     <td>Shuffle All</td>
-    <td>Smart shuffle, this one doesn't implemented yet. It is one of the original features</td>
+    <td>Smart shuffle, this one doesn't implemented yet. It is going to be one of the original features</td>
   </tr>
  <tr>
   <td><img src="screenshots/repeat_one.jpg"></td>
